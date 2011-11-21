@@ -267,4 +267,7 @@ class UploadsController extends UploaderAppController {
 		$this->redirect($this->referer());
 	}
 
+	function freak_out(){
+	}
+
 }
