@@ -268,6 +268,9 @@ class UploadsController extends UploaderAppController {
 	}
 
 	function show_off(){
+		$this->Session->setFlash(
+			__d('uploader', 'So fucking, fucking cool!', true);
+		}
 
 	}
 }
