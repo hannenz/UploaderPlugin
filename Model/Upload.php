@@ -99,54 +99,6 @@ class Upload extends AppModel {
 		)
 	);
 
-
-/* Inserts all files for each upload as an array to the results. The
- * files are accessible as $data['Alias']['files'] as array in the
- * format:
- *
- * @code
- *  'files' => array(
-		'path_alias1' => '/full/path/to/file/1',
- * 		'path_alias2' => '/full/path/to/file/2'
- * 	),
- *  'icon' => '/path/to/a/thumbnail/or/icon'
- * @endcode
-
- * name: afterFind
-
- * @param array $results
- * 		Array of results from find operation
- * @param boolean $primary
- * 		See CakePHP documentation
- *
- * @return array
- * 		The modified result set
- */
-	function afterFind($results, $primary = false){
-		if (!$primary || 1){
-			return ($results);
-		}
-		if (!empty($results)){
-			foreach ($results as $n => $result){
-				$ak = key($result);
-				$alias = isset($result[$ak]['alias']) ? $result[$ak]['alias'] : '';		// The alias as defined in uploader copnfiguration, e.g. 'Image'...
-
-				$results[$n][$ak]['files'] = array();
-				$results[$n][$ak]['icon'] = '/uploader/img/noimage.png';
-
-				if (array_key_exists($alias, $this->config)){
-					$results[$n][$ak]['icon'] = $this->getIcon($result[$ak]);
-
-					foreach ($this->config[$alias]['files'] as $key => $file){
-							$path = str_replace(WWW_ROOT, '', $file['path']) . DS . $result[$ak]['filename'];
-							$results[$n][$ak]['files'][$key] = $path;
-					}
-				}
-			}
-		}
-		return ($results);
-	}
-
 	function beforeValidate(){
 		$this->data = $this->prepareUpload($this->data);
 		return (true);
@@ -350,38 +302,6 @@ class Upload extends AppModel {
 		}
 	}
 
-/* Uploads all files
- *
- * name: uploadAll
- *
- * @param array $files
- *
- * @return array
- * 		Uploads in array format ready for DB
- *
- */
-	function uploadAll($files){
-		if (!is_array($files)){
-			$files = array($files);
-		}
-
-		$uploads = array();
-
-		foreach ($files as $file){
-			$upload = $this->uploadOne($file);
-			if ($upload !== false){
-				$uploads[] = $upload;
-			}
-			else {
-				if ($this->error != UPLOAD_ERR_NO_FILE){
-					debug ($file['name'] . ':' . $this->getErrorMessage($this->error));
-				}
-			}
-		}
-
-		return ($uploads);
-	}
-
 /* Uploads one file
  *
  * name: upload
@@ -414,23 +334,22 @@ class Upload extends AppModel {
 					$this->Image = new ImageComponent(new ComponentCollection);
 					$this->Image->load($data['tmp_name']);
 					foreach ($file['action'] as $action => $params){
-						if (!method_exists($this->Image, $action)){
-							throw new Exception (UPLOADER_ERR_ACTION);
-						}
-						$params = $this->arrayfy($params);
-						switch ($action){
-							case 'scale':
-								$this->Image->scale($params[0]);
-								break;
-							case 'resize':
-								$this->Image->resize($params[0], isset($params[1]) ? $params[1] : null);
-								break;
-							case 'crop':
-								$this->Image->crop(isset($params[0]) ? $params[0] : null, isset($params[1]) ? $params[1] : true);
-								break;
-							default:
-								//ImageComponent::{$action}($params);
-								break;
+						if (method_exists($this->Image, $action)){
+							$params = $this->arrayfy($params);
+							switch ($action){
+								case 'scale':
+									$this->Image->scale($params[0]);
+									break;
+								case 'resize':
+									$this->Image->resize($params[0], isset($params[1]) ? $params[1] : null);
+									break;
+								case 'crop':
+									$this->Image->crop(isset($params[0]) ? $params[0] : null, isset($params[1]) ? $params[1] : true);
+									break;
+								default:
+									//ImageComponent::{$action}($params);
+									break;
+							}
 						}
 					}
 					$this->Image->save($full_path, null, 75, 0666);
@@ -448,37 +367,6 @@ class Upload extends AppModel {
 		}
 		return true;
 	}
-
-
-/*
- * Deletes a set of uploads
- * 		$this->data = array(
- * 			'Upload' => array(
- * 				id => boolen
- * 				..
- * 			)
- * 		);
- *
- * name: delete_many
- * @param array $data
- * 		array of uploads to delete, with the id as key and a boolean as value (true = delete)
- * @return integer
- * 		number of deleted uploads
- */
-	//~ function delete_many($data){
-		//~ $n = 0;
-		//~ if (is_array($data)){
-			//~ foreach ($data as $id => $delete){
-				//~ if ($delete){
-					//~ if ($this->delete($id)){
-						//~ $n++;
-					//~ }
-				//~ }
-			//~ }
-		//~ }
-		//~ return ($n);
-//~
-	//~ }
 
 /*
  * Detects the mime_type of a given file, trying different methods,

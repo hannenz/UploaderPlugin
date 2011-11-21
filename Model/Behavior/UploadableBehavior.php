@@ -60,6 +60,9 @@ class UploadableBehavior extends ModelBehavior {
 		$this->Upload = new Upload();
 		$this->Upload->config = $this->settings[$Model->alias];
 
+		$Model->uploadErrors = null;
+		$Model->wasUploading = false;
+
 		if (!empty($Model->data['UploadsToDelete'])){
 			foreach ($Model->data['UploadsToDelete'] as $id => $delete){
 				if ($delete > 0){
@@ -72,6 +75,8 @@ class UploadableBehavior extends ModelBehavior {
 			return (true);
 		}
 
+		$Model->wasUploading = true;
+
 		foreach ($_FILES as $uploadAlias => $fileData){
 			if (!empty($fileData['name'])){
 				$uploads = array();
@@ -81,13 +86,11 @@ class UploadableBehavior extends ModelBehavior {
 					}
 					foreach ($fileData['name'] as $n => $value){
 						$uploads[] = array(
-							//~ $uploadAlias => array(
-								'name' => $fileData['name'][$n],
-								'tmp_name' => $fileData['tmp_name'][$n],
-								'type' => $fileData['type'][$n],
-								'size' => $fileData['size'][$n],
-								'error' => $fileData['error'][$n]
-							//~ )
+							'name' => $fileData['name'][$n],
+							'tmp_name' => $fileData['tmp_name'][$n],
+							'type' => $fileData['type'][$n],
+							'size' => $fileData['size'][$n],
+							'error' => $fileData['error'][$n]
 						);
 					}
 				}
@@ -96,13 +99,11 @@ class UploadableBehavior extends ModelBehavior {
 						continue;
 					}
 					$uploads[] = array(
-						//~ $uploadAlias => array(
-							'name' => $fileData['name'],
-							'type' => $fileData['type'],
-							'tmp_name' => $fileData['tmp_name'],
-							'size' => $fileData['size'],
-							'error' => $fileData['error']
-						//~ )
+						'name' => $fileData['name'],
+						'type' => $fileData['type'],
+						'tmp_name' => $fileData['tmp_name'],
+						'size' => $fileData['size'],
+						'error' => $fileData['error']
 					);
 				}
 				$errors = array();
@@ -119,7 +120,6 @@ class UploadableBehavior extends ModelBehavior {
 				}
 				if (!empty($errors)){
 					$Model->uploadErrors = $errors;
-					//~ debug ($errors);
 				}
 			}
 		}
