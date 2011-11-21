@@ -51,7 +51,7 @@ class UploadableBehavior extends ModelBehavior {
 						'order' => array($uploadAlias . '.pos' => 'ASC')
 					)
 				)
-			));
+			), false);
 		}
 	}
 
@@ -114,11 +114,12 @@ class UploadableBehavior extends ModelBehavior {
 					$this->Upload->alias = $uploadAlias;
 					$this->Upload->create();
 					if (!$this->Upload->save($upload)){
-						$errors[$upload['name']] = $this->Upload->validationErrors;
+						$errors[$uploadAlias][$upload['name']] = $this->Upload->validationErrors;
 					}
 				}
 				if (!empty($errors)){
-					debug ($errors);
+					$Model->uploadErrors = $errors;
+					//~ debug ($errors);
 				}
 			}
 		}
