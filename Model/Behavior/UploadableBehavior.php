@@ -60,6 +60,14 @@ class UploadableBehavior extends ModelBehavior {
 		$this->Upload = new Upload();
 		$this->Upload->config = $this->settings[$Model->alias];
 
+		if (!empty($Model->data['UploadsToDelete'])){
+			foreach ($Model->data['UploadsToDelete'] as $id => $delete){
+				if ($delete > 0){
+					$this->Upload->delete($id);
+				}
+			}
+		}
+
 		if (empty($_FILES)){
 			return (true);
 		}
