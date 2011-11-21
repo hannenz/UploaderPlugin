@@ -60,89 +60,61 @@ class UploadableBehavior extends ModelBehavior {
 		$this->Upload = new Upload();
 		$this->Upload->config = $this->settings[$Model->alias];
 
-		if (isset($Model->data['Uploader']) && is_array($Model->data['Uploader'])){
-			foreach ($Model->data['Uploader'] as $uploadAlias => $data){
-					if (!empty($data['name'])){
-					$upload = array(
-						$uploadAlias => array(
-							'alias' => $uploadAlias,
-							'model' => $Model->name,
-							'foreign_key' => isset($Model->data[$Model->name]['id']) ? $Model->data[$Model->name]['id'] : null,
-							'name' => $data['name'],
-							'type' => $data['type'],
-							'tmp_name' => $data['tmp_name'],
-							'size' => $data['size'],
-							'error' => $data['error']
-						)
-					);
-					$this->Upload->alias = $uploadAlias;
-					$this->Upload->create();
-					if (!$this->Upload->save($upload)){
-						//~ return (false);
-						//~ debug ($this->Upload->validationErrors);
-					}
-				}
-			}
-		}
-		return (true);
-
-//		$data['alias'] =
-
-
-		/* If we have something to delete... do it */
-		if (!empty($model->data['UploadDelete'])){
-			foreach ($model->data['UploadDelete'] as $alias => $ids){
-				foreach ($ids as $id){
-					$model->{$alias}->delete($id);
-				}
-			}
-		}
-
-		// In case there are no files to upload...
 		if (empty($_FILES)){
 			return (true);
 		}
 
-		/* Process upload(s) from $_FILES and normalize to array */
-		foreach ($_FILES as $alias => $upload_data){
-			$data = array($upload_data);
-			if (is_array($upload_data['name'])){
-				$data = array();
-				foreach ($upload_data['name'] as $key => $name){
-					$data[] = array(
-						'name' => $upload_data['name'][$key],
-						'type' => $upload_data['type'][$key],
-						'tmp_name' => $upload_data['tmp_name'][$key],
-						'error' => $upload_data['error'][$key],
-						'size' => $upload_data['size'][$key]
+		foreach ($_FILES as $uploadAlias => $fileData){
+			if (!empty($fileData['name'])){
+				$uploads = array();
+				if (is_array($fileData['name'])){
+					if (empty($fileData['name'][0])){
+						continue;
+					}
+					foreach ($fileData['name'] as $n => $value){
+						$uploads[] = array(
+							//~ $uploadAlias => array(
+								'name' => $fileData['name'][$n],
+								'tmp_name' => $fileData['tmp_name'][$n],
+								'type' => $fileData['type'][$n],
+								'size' => $fileData['size'][$n],
+								'error' => $fileData['error'][$n]
+							//~ )
+						);
+					}
+				}
+				else {
+					if (empty($fileData['name'])){
+						continue;
+					}
+					$uploads[] = array(
+						//~ $uploadAlias => array(
+							'name' => $fileData['name'],
+							'type' => $fileData['type'],
+							'tmp_name' => $fileData['tmp_name'],
+							'size' => $fileData['size'],
+							'error' => $fileData['error']
+						//~ )
 					);
 				}
-			}
+				$errors = array();
+				foreach ($uploads as $upload){
+					$upload['alias'] = $uploadAlias;
+					$upload['model'] = $Model->name;
+					$upload['foreign_key'] = isset($Model->data[$Model->name]['id']) ? $Model->data[$Model->name]['id'] : null;
 
-			$model->data[$alias]['upload_data'] = $data;
-
-			/* Call Uploader.Upload to upload the files. */
-			$model->{$alias}->data = $model->data[$alias];
-			$uploads = $model->{$alias}->uploadAll($data);
-
-			/* Do save all uploads...
-			 * It's a pity that it seems not to work to have Cake's saveAll
-			 * model method handle this, but i didn't get it to work...
-			 * Maybe look at this again later. For now doing it "by hand"
-			 */
-			foreach ($uploads as $upload) {
-				$data = array(
-					'Upload' => $upload
-				);
-				$data['Upload']['id'] = !empty($model->data[$alias]['id']) ? $model->data[$alias]['id'] : null;
-				// If we replace an existing upload, remove all of its files first.
-				if ($data['Upload']['id'] > 0){
-					$up = $model->{$alias}->findById($data['Upload']['id']);
-					$model->{$alias}->deleteFiles($up);
+					$this->Upload->alias = $uploadAlias;
+					$this->Upload->create();
+					if (!$this->Upload->save($upload)){
+						$errors[$upload['name']] = $this->Upload->validationErrors;
+					}
 				}
-				$model->{$alias}->save($data);
+				if (!empty($errors)){
+					debug ($errors);
+				}
 			}
 		}
+
 		return (true);
 	}
 
@@ -152,11 +124,12 @@ class UploadableBehavior extends ModelBehavior {
  * name: afterSave
  *
  */
-	function afterSave(&$model, $created){
-		foreach (array_merge($model->hasOne, $model->hasMany) as $assoc => $data){
-			if ($data['className'] == 'Upload'){
-				$model->{$assoc}->savePending($model->name, $assoc, $model->id);
-			}
+	function afterSave(&$Model, $created){
+		if ($created){
+			App::uses('Upload', 'Uploader.Model');
+			$this->Upload = new Upload();
+			$this->Upload->config = $this->settings[$Model->alias];
+			$this->Upload->savePending($Model->id);
 		}
 	}
 
@@ -175,19 +148,22 @@ class UploadableBehavior extends ModelBehavior {
  *
  * name: beforeDelete
  */
-	function beforeDelete(&$model, $cascade = true){
-		foreach (array_merge($model->hasOne, $model->hasMany) as $assoc => $data){
-			if ($data['className'] == 'Upload'){
-				$conditions = array(
-					'Upload.model' => $model->name,
-					'Upload.alias' => $assoc,
-					'Upload.foreign_key' => $model->id
-				);
-				$records = $model->{$assoc}->find('all', array('conditions' => $conditions, 'fields' => array('id')));
-				if (!empty($records)){
-					foreach ($records as $record){
-						$model->{$assoc}->delete($record['Upload']['id']);
-					}
+	function beforeDelete($Model, $cascade = true){
+		App::uses('Upload', 'Uploader.Model');
+		$this->Upload = new Upload();
+		$this->Upload->config = $this->settings[$Model->alias];
+
+		foreach ($this->settings[$Model->alias] as $uploadAlias => $data){
+			$conditions = array(
+				'Upload.model' => $Model->name,
+				'Upload.alias' => $uploadAlias,
+				'Upload.foreign_key' => $Model->id
+			);
+
+			$records = $this->Upload->find('all', array('conditions' => $conditions, 'fields' => array('id')));
+			if (!empty($records)){
+				foreach ($records as $record){
+					$this->Upload->delete($record['Upload']['id']);
 				}
 			}
 		}

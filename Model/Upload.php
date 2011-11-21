@@ -144,7 +144,6 @@ class Upload extends AppModel {
 	}
 
 	function beforeValidate(){
-//		debug ('Upload::beforeValidate()');
 		$this->data = $this->prepareUpload($this->data);
 		return (true);
 	}
@@ -173,13 +172,18 @@ class Upload extends AppModel {
 			}
 		}
 
-		$data[$alias]['type'] = $this->getFiletype($data[$alias]['tmp_name'], end(explode('.', $data[$alias]['name'])));
+		$extension = end(explode('.', $data[$alias]['name']));
+
+		$data[$alias]['type'] = $this->getFiletype($data[$alias]['tmp_name'], $extension);
 		$data[$alias]['is_uploaded_file'] = is_uploaded_file($data[$alias]['tmp_name']);
 		if (empty($data[$alias]['title'])){
 			$data[$alias]['title'] = $data[$alias]['name'];
 		}
+		$data[$alias]['filename'] = sprintf('%s.%s', $this->uniqueFilename(), $extension);
 		$data[$alias]['write_permissions'] = $wp ? 1 : 0;
 		$data[$alias]['pos'] = $this->find('count', array('conditions' => array($alias . '.alias' => $alias, $alias . '.model' => $data[$alias]['model'], $alias . '.foreign_key' => $data[$alias]['foreign_key']))) + 1;
+		$data[$alias]['session_id'] = session_id();
+
 
 		return ($data);
 	}
@@ -220,22 +224,25 @@ class Upload extends AppModel {
  * name: get_pending
  * @param string $model
  * 		The name of the model
- * @param string $alias
+ * @param string $alias optional
  * 		The nameof the upload alias
  *
  * @return array
  *		Array of uploads that have not been assigned to a record yet.
  */
-	function get_pending($model, $alias){
-		$pending_uploads = $this->find('all', array(
-			'conditions' => array(
-				'Upload.alias' => $alias,
-				'Upload.model' => $model,
-				'Upload.session_id' => session_id(),
-				'Upload.foreign_key <=' => 0
-			)
-		));
-		return ($pending_uploads);
+	function getPending($model = null, $alias = null){
+		$conditions = array(
+			'Upload.session_id' => session_id(),
+			'Upload.foreign_key <=' => 0
+		);
+
+		if ($model !== null){
+			$conditions['Upload.model'] = $model;
+		}
+		if ($alias !== null){
+			$conditions['Upload.alias'] = $alias;
+		}
+		return $this->find('all', array('conditions' => $conditions));
 	}
 
 /* Saves all pending uploads by assiging them to the record specified by
@@ -257,8 +264,8 @@ class Upload extends AppModel {
  * 		The id of the record (foreign_key) to assign the pending uploads
  * 		to
  */
-	function savePending($model, $alias, $id){
-		$pending_uploads = $this->get_pending($model, $alias);
+	function savePending($id, $model = null, $alias = null){
+		$pending_uploads = $this->getPending($model, $alias);
 		foreach ($pending_uploads as $upload){
 			$this->id = $upload['Upload']['id'];
 			$this->saveField('foreign_key', $id);
@@ -289,12 +296,12 @@ class Upload extends AppModel {
 			$files = $this->config[$alias]['files'];
 
 			if (isset($this->config[$alias]['display']) && isset($files[$this->config[$alias]['display']])){
-				$icon = $files[$this->config[$alias]['display']]['path'] . DS . $upload['name'];
+				$icon = $files[$this->config[$alias]['display']]['path'] . DS . $upload['filename'];
 			}
 			else {
 				foreach ($files as $name => $file){
 					if (preg_match('/thumb/i', $name)){
-						$icon = $file['path'] . DS . $upload['name'];
+						$icon = $file['path'] . DS . $upload['filename'];
 						break;
 					}
 				}
@@ -303,7 +310,7 @@ class Upload extends AppModel {
 			// If none was found, use the first path name
 			if ($icon === false){
 				$first = array_shift($files);
-				$icon = $first['path'] . DS . $upload['name'];
+				$icon = $first['path'] . DS . $upload['filename'];
 			}
 		}
 		else {
@@ -357,7 +364,7 @@ class Upload extends AppModel {
 		$uploads = array();
 
 		foreach ($files as $file){
-			$upload = $this->uploadOne($file, $this->data['alias'], $this->data['model'], $this->data['id'], $this->data['foreign_key']);
+			$upload = $this->uploadOne($file);
 			if ($upload !== false){
 				$uploads[] = $upload;
 			}
@@ -396,7 +403,7 @@ class Upload extends AppModel {
 
 			foreach ($config['files'] as $file){
 				$path = rtrim($file['path'], '/') . DS;
-				$full_path = $path . $data['name'];
+				$full_path = $path . $data['filename'];
 
 				if (isset($file['action']) && count($file['action']) > 0 && in_array($data['type'], array('image/jpeg', 'image/gif', 'image/png'))){
 					App::import('Component', 'Uploader.Image');
