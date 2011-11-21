@@ -267,10 +267,4 @@ class UploadsController extends UploaderAppController {
 		$this->redirect($this->referer());
 	}
 
-	function show_off(){
-		$this->Session->setFlash(
-			__d('uploader', 'So fucking, fucking cool!', true);
-		}
-
-	}
 }
