@@ -1,0 +1,147 @@
+# LANGUAGE translation of CakePHP Application
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2011-05-04 16:41+0200\n"
+"PO-Revision-Date: 2011-05-04 16:47+0100\n"
+"Last-Translator: Johannes Braun <me@hannenz.de>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: /controllers/uploads_controller.php:54
+msgid "Failed to save the uploaded file's data to database"
+msgstr "Konnte die Daten der hochgeladenen Datei nicht in die Datenbank schreiben"
+
+#: /controllers/uploads_controller.php:151
+msgid "Upload has been deleted"
+msgstr "Hochgeladene Datei wurde gelöscht"
+
+#: /controllers/uploads_controller.php:154
+msgid "Upload could not been deleted"
+msgstr "Hochgeladene Datei konnte nicht gelöscht werden"
+
+#: /controllers/components/uploader.php:93
+msgid "Upload directory does not exist:"
+msgstr "Verzeichnis zum Hochladen existiert nicht"
+
+#: /controllers/components/uploader.php:100
+msgid "is not writable"
+msgstr "ist nicht schreibbar"
+
+#: /controllers/components/uploader.php:106
+msgid "File exists and overwrite is disabled"
+msgstr "Datei exisitiert und darf nicht überschrieben werden"
+
+#: /controllers/components/uploader.php:127
+msgid "move_uploaded_file() failed"
+msgstr "move_uploaded_file() fehlgeschlagen"
+
+#: /controllers/components/uploader.php:134
+msgid "Invalid filetype"
+msgstr "Ungültiger Dateityp"
+
+#: /controllers/components/uploader.php:138
+msgid "Invalid filetype:"
+msgstr "Ungültiger Dateityp:"
+
+#: /controllers/components/uploader.php:143
+msgid "The uploaded file exceeds the max_filesize directive specified in Upload Plugin configuration (%s)"
+msgstr "Die hochgeladene Datei ist größer als die zulässige Dateigröße, die in der Uploader Plugin Konfiguration angegeben ist (%s)"
+
+#: /controllers/components/uploader.php:147
+msgid "is_uploaded_file() failed"
+msgstr "is_uploaded_file() fehlgeschlagen"
+
+#: /controllers/components/uploader.php:152
+msgid "The uploaded file exceeds the upload_max_filesize directive in php.ini (%s)"
+msgstr "Die hochgeladene Datei ist größer als die zulässige Dateigröße, die in der upload_max_filsize Direktive in php.ini festgesetzt ist (%s)"
+
+#: /controllers/components/uploader.php:153
+msgid "The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form"
+msgstr "Die hochgeladene Datei ist größer als die zulässige Dateigröße, die im HTML Formular mittels MAX_FILE_SIZE Attribut festgesetzt wurde"
+
+#: /controllers/components/uploader.php:154
+msgid "The uploaded file was only partially uploaded"
+msgstr "Die Datei konnte nur teilweise hochgeladen werden"
+
+#: /controllers/components/uploader.php:155
+msgid "No file was uploaded"
+msgstr "Es wurde keine Datei hochgeladen"
+
+#: /controllers/components/uploader.php:156
+msgid "Missing a temporay folder"
+msgstr "Temp Verzeichnis existiert nicht"
+
+#: /controllers/components/uploader.php:157
+msgid "Failed to write file to disk"
+msgstr "Konnte Datei nicht schreiben"
+
+#: /controllers/components/uploader.php:158
+msgid "A PHP extension stopped the file upload"
+msgstr "Eine PHP Extension verhinderte das Hochladen der Datei"
+
+#: /controllers/components/uploader.php:159
+msgid "Unknown error"
+msgstr "Unbekannter Fehler"
+
+#: /controllers/components/uploader.php:164
+msgid "Configuration not present for model:"
+msgstr "Konfigurationsdatei existiert nicht für Model:"
+
+#: /views/elements/default_item.ctp:3
+msgid "close"
+msgstr "schliessen"
+
+#: /views/elements/default_item.ctp:23
+msgid "Filename"
+msgstr "Dateiname"
+
+#: /views/elements/default_item.ctp:25
+msgid "Mime Type"
+msgstr "Mime Typ"
+
+#: /views/elements/default_item.ctp:27
+msgid "Filesize"
+msgstr "Dateigröße"
+
+#: /views/elements/default_item.ctp:29
+msgid "Uploaded"
+msgstr "Hochgeladen"
+
+#: /views/elements/dustbin.ctp:2
+msgid "Drop here to delete"
+msgstr "Hierher ziehen zum Löschen"
+
+#: /views/elements/list_item.ctp:4
+msgid "up"
+msgstr "hoch"
+
+#: /views/elements/list_item.ctp:11
+msgid "delete"
+msgstr "löschen"
+
+#: /views/elements/list_item.ctp:16
+msgid "Are you sure?"
+msgstr "Sind Sie sicher?"
+
+#: /views/elements/list_item.ctp:18
+msgid "down"
+msgstr "runter"
+
+#: /views/elements/upload.ctp:71
+msgid "Max Filesize"
+msgstr "Max. Dateigröße"
+
+#: /views/elements/upload.ctp:73
+msgid "Allowed Filetypes"
+msgstr "Erlaubte Dateitypen"
+
+#: /views/elements/upload.ctp:92
+msgid "Upload"
+msgstr "Hochladen"
+

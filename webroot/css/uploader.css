@@ -1,0 +1,37 @@
+.uploader-list {
+	font-family:Verdana, sans;
+	font-size:11px;
+	color:#555;
+	line-height:1.2em;
+}
+
+.uploader-list li {
+	overflow:hidden;
+	border:1px solid #ccc;
+	border-radius:4px;
+	margin:0.6em 0;
+	padding:0.6em;
+}
+
+.uploader-list li div.input {
+	width:12px;
+	float:left;
+	margin-right:10px;
+}
+
+.uploader-list li img {
+	width:32px;
+	float:left;
+	margin-right:10px;
+	display:block;
+}
+
+.uploader-list dl {
+	width:400px;
+	float:left;
+}
+
+.uploader-list dt, .uploader-list dd {
+	background:transparent !important;
+}
+
