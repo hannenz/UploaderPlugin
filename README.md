@@ -236,7 +236,7 @@ public function edit($id = null) {
 
 That's it. The Helper's file() method outputs markup that behaves accordingly to any other input, including validation (if you don't forget to set 'uploadErrors' in the controller!!)
 
-Furthermore it outputs a list of the uploads that this record has already.
+Furthermore it outputs a list of the uploads that this record has already. The output of this list can be controlled via the `/app/Plugin/Uploader/View/Elements/default_element.ctp` element. There is an option to allow specifying own custom elements but not yet implemented correctly, so for the time being, you need to edit the fie `default_element.ctp`
 
 The UploaderForm::file method takes the `uploadAlias` as first argument and optionally an options array as second argument.
 
@@ -248,21 +248,31 @@ provide a multi-select file selector and allow for multiple uploads)
 
 Default: false
 
+####element
+You can specify the element to be used to render the upload list...
+
+Default:
+default_element.ctp
+_
+__(This needs improvement!!!)__
+
+
 ####error
 Array of validation error messages, give the following keys for the different errors:
 
 
-maxSize
-: file was too large
-fileType
-: Invalid filetype
-max
-: Maximum number of files for this record exceeded
-isUploadedFile
-: Illegal upload (php's is_uploaded_file() failed)
-isError
-: Illegal upload (php reported error != 0 in form data)
-
+<dl>
+<dt>maxSize</dt>
+<dd>File was too large</dd>
+<dt>fileType</dt>
+<dd>Invalid filetype</dd>
+<dt>max</dt>
+<dd>Maximum number of files for this record exceeded</dd>
+<dt>isUploadedFile</dt>
+<dd>Illegal upload (php's is_uploaded_file() failed)</dd>
+<dt>isError</dt>
+<dd>Illegal upload (php reported error != 0 in form data)</dd>
+</dl>
 
 Default:
 
@@ -279,17 +289,6 @@ array(
 ?>
 
 ~~~
-
-
-####element
-You can specify the element to be used to render the upload list...
-
-Default:
-default_element.ctp
-_
-
-(This needds improvement!!!)
-
 
 ##Custom Actions
 
