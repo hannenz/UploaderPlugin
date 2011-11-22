@@ -26,25 +26,6 @@ class UploaderFormHelper extends AppHelper {
 
 	public $helpers = array('Html', 'Form', 'Number', 'Text', 'Session');
 
-	/* The current upload's Alias */
-	var $alias = null;
-
-	/* The current upload's (associated) model */
-	var $model = null;
-
-	/* The current upload's associated record id */
-	var $id = null;
-
-	/* The UploaderPlugin configuration */
-	var $config = null;
-
-	/* We need an instance of the Upload Class */
-	var $Upload = null;
-
-	/* An instance of the current upload's model */
-	var $Model = null;
-
-
 	function file($uploadAlias, $options = array()){
 		$options = array_merge(array(
 			'multiple' => false,
