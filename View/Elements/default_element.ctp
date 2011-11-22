@@ -1,9 +1,8 @@
 <?php
-	echo $this->Html->image($upload['icon'], array('style' => 'width:48px'));
+	echo $this->Html->image($upload['icon'], array('url' => str_replace(WWW_ROOT, DS . 'webroot' . DS, $upload['files']['full'])));
 ?>
 <dl>
 <?php
-
 	echo $this->Html->tag('dt', __d('uploader', 'Pos', true));
 	echo $this->Html->tag('dd', '#'.$upload['pos']);
 	echo $this->Html->tag('dt', __d('uploader', 'Filename', true));

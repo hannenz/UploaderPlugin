@@ -200,7 +200,7 @@ class UploadableBehavior extends ModelBehavior {
 						foreach ($result[$uploadAlias] as $m => $data){
 							$results[$n][$uploadAlias][$m]['files'] = array();
 							foreach ($setting['files'] as $name => $path){
-								$results[$n][$uploadAlias][$m]['files'][$name] = $path['path'] . $data['name'];
+								$results[$n][$uploadAlias][$m]['files'][$name] = $path['path'] . DS . $data['filename'];
 							}
 							$results[$n][$uploadAlias][$m]['icon'] = $this->Upload->getIcon($data);
 						}
