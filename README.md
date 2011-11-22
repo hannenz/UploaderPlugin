@@ -1,9 +1,9 @@
 # UploaderPlugin
 
-__This is a plugin for CakePHP >= 2.0 (but could be simply rewritten to work with 1.3 as well)__
+__This is a plugin for CakePHP >= 2.0__ (but could be simply rewritten to work with 1.3 as well)
 
-A plugin to be used with CakePHP.
-With this plugin, oyu can manage uploads as hasMany associated objects.
+UploaderPlugin is a plugin to be used with the CakePHP framework.
+It allows to manage uploads as "hasMany associated objects" related to any of your models.
 The plugin provides a behavior to be attached to the model which shall
 "have" the uploads and allows for multiple aliased upload types.
 
@@ -12,24 +12,37 @@ along with a list of yet uploaded files.
 
 Multiple uploads are supported (as long as the browser supports them).
 
+The UploadsController allows to edit uploads (e.g. rename, add title and description, manually set mime type etc.), delete them and of course display them.
+
 This is the base version of the plugin. The plan is to improve it by
 enhancing it via Javascript to provide ajax-like uploads with progress
 etc. - stay tuned
 
+## Installation
+
+- Drop the plugin into your CakePHP project's Plugin folder (usually at `/app/Plugin`)
+- Create the uploads table in your database. You can find a SQL dump in `/Uploader/Config/uploads.sql`
+- Create the necessary upload destination directories below `app/webroot` and make sure they PHP has write permissions for them.
+
+
 ## Configuration
 
-In the model(s) which shall "have" uploads, attach the behavior:
+In the model(s) which shall "have" uploads, attach the Uploadable behavior:
+
+
+~~~
+class YourModel extends AppModel {
+
+	public $actsAs = array(
+		'Uploader.Uploadable' => $settings
+	);
+	
+	...
+}
 
 ~~~
 
-public $actsAs = array(
-	'Uploader.Uploadable' => $settings
-);
-
-~~~
-
-Settings are very extensive but allow for very flexible configuration of
-the plugin:
+Settings are very extensive but allow for very flexible configuration of the plugin:
 
 Each record of your model can have multiple upload types, which are
 identified by a string which is called `uploadAlias`. You need at least
@@ -50,11 +63,11 @@ Back to the settings for the UploadableBehavior:
 ~~~
 $settings = array(
 	'uploadAlias' => array(
-		'max' => number,		// Max. number of uploads per record
-		'maxSize' => number,	// Max. filesize in bytes (0 or unset means: no limit)
-		'allow' => array(),		// Array of mime-types that are allowed for upload (e.g. array('image/jpg', 'application/pdf', ...))
-		'display' => 'fileAlias' 	// Name of the fileAlias to be used as icon (by default and if not set, will look for a fileAlias containing the string 'thumb' in any form
-		'files' => array(		// Array of destination files for each upload. Must at least contain one fileAlias
+		'max' => number,					// Max. number of uploads per record
+		'maxSize' => number,				// Max. filesize in bytes (0 or unset means: no limit)
+		'allow' => array(),					// Array of mime-types that are allowed for upload (e.g. array('image/jpg', 'application/pdf', ...))
+		'display' => 'fileAlias' 			// Name of the fileAlias to be used as icon (by default and if not set, will look for a fileAlias containing the string 'thumb' in any form
+		'files' => array(					// Array of destination files for each upload. Must at least contain one fileAlias
 			'fileAlias' => array(
 				'path' => 'path/to/destination',	// Give a path relative to the application's webroot (not the plugin's!!)
 													// Make sure that this path existst and is writable!!
@@ -67,11 +80,28 @@ $settings = array(
 			),
 			// You can add any number of fileAliases here
 		)
-	)
+	),
 	// You can add any number of uploadAliases here
 );
 
 ~~~
+
+max
+: (numeric, optinal) The maximum number of uploads allowed for each record of your model. If not specified there is no limit. Normally an attempt to upload another file exceeding the max limit, results in a valiudation error, but for the special case when max is set to 1, the existing upload will be overwritten by any subsequent upload.
+
+maxSize
+: (numeric, optional) Allows to specify a max filesize in bytes. Remember that there are other limiting settings in php.ini (upload_max_filesize and post_max_size) which can be smaller that your settings!
+
+allow
+: (array, optional) Specifies the allowed file types as an array of mime types. If not set, all types are allowed.
+
+display
+: (string, optional) UploaderPlugin always sets a path for an icon ready to display, usually a thumbnail or file icon. You can specify the `fileAlias` which shall act as display icon. If this option is not set, the plugin will do: if the upload's type is some kind of image, it will check if there is a `fileAlias` containig the string 'thumb', or else use the first `fileAlias`. If it is not an image it will lookup the icon from `/app/Plugin/Uploader/webroot/img/mime_types` according to the file's type.
+
+files
+: (array) This is the array which specifies the upload destination(s). At least one destination must be present! Destinations are specified as array elements with the key being the `fileAlias` name and the value another array containing the `path` and optinally an `action` key. `path` specifies the destination's path relative to the application's webroot (WWW_ROOT), `action` holds an array of actions to perform on each uploaded file for that destination (e.g. make thumbnails etc.) See below for more on actions.
+
+_
 
 ## Uploads as hasMany objects
 
@@ -85,7 +115,7 @@ Array
     [YourModel] => Array
         (
             [id] => 26
-            [title] => Anything...
+            [title] => Lorem Ipsum
         )
 
     [uploadAlias] => Array
@@ -93,8 +123,7 @@ Array
             [0] => Array
                 (
                     [id] => 1395
-                    [created] => 2011-11-22 10:30:43
-                    [modified] => 2011-11-22 10:30:43
+                    [created] => 2011-11-22 10:30:43		// Read: 'uploaded'
                     [filename] => c0a80004-6bc3-bca4.JPG	// This is the actual (real) filename
                     [name] => DSC00140.JPG					// This is the original filename, e.g. the filename how the user uploaded it...
                     [size] => 345081						// The file's size in bytes (stored as reported during upload from PHP, your sizes for different fileAlias may differ...)
@@ -137,10 +166,9 @@ Array
 
 ## UploaderFormHelper
 
-The plugin comes with a Helper which outputs the appropriate file input
-and a list of available uploads.
+The plugin comes with a Helper which outputs the appropriate file input and a list of available uploads.
 
-For fpr your example model's edit action do this:
+For your model's edit action do this:
 
 ~~~
 // File: /app/Controller/foobars.php
@@ -197,15 +225,13 @@ public function edit($id = null) {
 
 ~~~
 
-That's it. The Helper's file() method outputs markup that behaves accordingly to any other
-input, including validation (if you don't forget to set 'uploadErrors' in the controller!!)
+That's it. The Helper's file() method outputs markup that behaves accordingly to any other input, including validation (if you don't forget to set 'uploadErrors' in the controller!!)
 
 Furthermore it outputs a list of the uploads that this record has already.
 
-The UploaderForm::file method takes the uploadAlias as first argument and
-optionally an options array as second argument.
+The UploaderForm::file method takes the `uploadAlias` as first argument and optionally an options array as second argument.
 
-Options are cake-style key/ value pairs and can be:
+Options are CakePHP-style key/value pairs and can be:
 
 ####multiple
 whether the upload field shall have the multiple property (modern browsers
@@ -259,7 +285,7 @@ To provide custom action only needs to implement your own Component (inside the 
 The component must implement at least the two methods load() which load the original file and save it back after all actions have been applied.
 Both methods take the input/ outut file's full path as first argument and must return a boolean value which indicates success of the operation.
 
-Here is an example
+Here is an example:
 
 ~~~
 
