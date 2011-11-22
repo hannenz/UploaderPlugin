@@ -1,64 +1,30 @@
-FIXME: To be UPDATED!!!!
+# UploaderPlugin
 
+__This is a plugin for CakePHP >= 2.0 (but could be simply rewritten to work with 1.3 as well)__
 
-Unzip the plugin into /app/plugins
+A plugin to be used with CakePHP.
+With this plugin, oyu can manage uploads as hasMany associated objects.
+The plugin provides a behavior to be attached to the model which shall
+"have" the uploads and allows for multiple aliased upload types.
 
-run /app/plugins/uploader/config/uploader.sql as MySQL Query
+Furthermore the plugin provides a helper to output file upload fields
+along with a list of yet uploaded files.
 
-include jquery and jquery-ui in your layout
+Multiple uploads are supported (as long as the browser supports them).
 
-include /app/css/uploader.css in your layout
+This is the base version of the plugin. The plan is to improve it by
+enhancing it via Javascript to provide ajax-like uploads with progress
+etc. - stay tuned
 
-Edit /app/plugins/uploader/config/uploader_config.php
+## Configuration
 
-Add to your model(s) (Replace {AliasName} by the Alias you configured in uploader_config.php):
+In the model(s) which shall "have" uploads, attach the behavior:
 
-	var $hasMany (or $hasOne) = array(
-		'{AliasName}' => array(
-			'className' => 'Upload',
-			'foreignKey' => 'foreign_key',
-			'dependent' => true,
-			'order' => array(
-				'{AliasName}.pos' => 'ASC'
-			),
-			'conditions' => array(
-				'{AliasName}.alias' => '{AliasName}',
-				'{AliasName}.model' => $this->name
-			)
-		)
-	);
-	
-	function beforeDelete(){
-		App::import('Model', 'Uploader.Upload');
-		$Upload = new Upload();
-		$Upload->delete_upload_files($this->name, $this->id);
-		return (true);
-	}
-	
-	function afterSave(){
-		App::import('Model', 'Uploader.Upload');
-		$Upload = new Upload();
+~~~
 
-		foreach ($this->hasMany as $alias => $dummy){
-			$Upload->save_pending($this->name, $alias, $this->id);
-		}
-		foreach ($this->hasOne as $alias => $dummy){
-			$Upload->save_pending($this->name, $alias, $this->id);
-		}
+public $actsAs = array(
+	'Uploader.Uploadable' => $settings
+);
 
-		return (true);
-	}
+~~~
 
-
-Load Uploader Helper in your (App)Controller:
-
-	var $helpers = array(..., 'Uploader.Uplhlp', ...);
-
-
-Call Element(s) in your view:
-
-	echo $this->element('upload' | 'list' | 'uploadlist', array(
-		'plugin' => 'uploader',
-		'alias' => '{AliasName}'
-	));
-	
