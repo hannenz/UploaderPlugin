@@ -1,5 +1,5 @@
 <?php
-	echo $this->Html->image($upload['icon'], array('url' => str_replace(WWW_ROOT, DS . 'webroot' . DS, $upload['files']['full'])));
+	echo $this->Html->image($upload['icon']);
 ?>
 <dl>
 <?php

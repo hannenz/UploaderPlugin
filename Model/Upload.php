@@ -279,7 +279,7 @@ class Upload extends AppModel {
 			else {
 				foreach ($files as $name => $file){
 					if (preg_match('/thumb/i', $name)){
-						$icon = $file['path'] . DS . $upload['filename'];
+						$icon = DS . $file['path'] . DS . $upload['filename'];
 						break;
 					}
 				}
@@ -303,7 +303,7 @@ class Upload extends AppModel {
 			$icon = DS . 'uploader' . DS . 'img' . DS . 'mime_types' . DS . $icon_file_name;
 		}
 
-		return (str_replace(WWW_ROOT, DS, $icon));
+		return (DS . trim($icon, '/'));
 	}
 
 
@@ -344,7 +344,7 @@ class Upload extends AppModel {
 		$config = $this->config[$data['alias']];
 
 		foreach ($config['files'] as $file){
-			$full_path = rtrim($file['path'], '/') . DS . $data['filename'];
+			$full_path = WWW_ROOT . DS . trim($file['path'], '/') . DS . $data['filename'];
 
 			if (isset($file['action']) && count($file['action']) > 0 && in_array($data['type'], array('image/jpeg', 'image/gif', 'image/png'))){
 				foreach ($file['action'] as $component => $actionData){
@@ -504,28 +504,28 @@ class Upload extends AppModel {
 	 * 		The error message
 	 *
 	 */
-	function getErrorMessage($e){
-		switch ($e){
-			case UPLOADER_ERR_CONFIG: $mssg =  __d('uploader', 'Missing configuration file', true); break;
-			case UPLOADER_ERR_ILLEGAL: $mssg =  __d('uploader', 'Illegal upload', true); break;
-			case UPLOADER_ERR_SIZE: $mssg =  __d('uploader', 'File too large', true); break;
-			case UPLOADER_ERR_TYPE: $mssg =  __d('uploader', 'Illegal file type', true); break;
-			case UPLOADER_ERR_DIR: $mssg =  __d('uploader', 'Destination directory does not exist', true); break;
-			case UPLOADER_ERR_PERMS: $mssg =  __d('uploader', 'Destination directory is not writable', true); break;
-			case UPLOADER_ERR_FILE_EXISTS: $mssg =  __d('uploader', 'File exists', true); break;
-			case UPLOADER_ERR_ACTION: $mssg =  __d('uploader', 'Action failed', true); break;
-			case UPLOADER_ERR_DB: $mssg =  __d('uploader', 'Saving the upload\'s data failed', true); break;
-			case UPLOAD_ERR_INI_SIZE: $mssg =  __d('uploader', 'File too large (php.ini)', true); break;
-			case UPLOAD_ERR_FORM_SIZE: $mssg =  __d('uploader', 'File too large (form)', true); break;
-			case UPLOAD_ERR_PARTIAL: $mssg =  __d('uploader', 'Upload has been interrupted', true); break;
-			case UPLOAD_ERR_NO_FILE: $mssg =  __d('uploader', 'No file to upload', true); break;
-			case UPLOAD_ERR_NO_TMP_DIR: $mssg =  __d('uploader', 'No tmp directory', true); break;
-			case UPLOAD_ERR_CANT_WRITE: $mssg =  __d('uploader', 'Tmp directory not writable', true); break;
-			case UPLOAD_ERR_EXTENSION: $mssg =  __d('uploader', 'PHP Extension upload error', true); break;
-			default: $mssg = __d('upload', 'Unknown error'); break;
-		}
-		return ($mssg);
-	}
+	//~ function getErrorMessage($e){
+		//~ switch ($e){
+			//~ case UPLOADER_ERR_CONFIG: $mssg =  __d('uploader', 'Missing configuration file', true); break;
+			//~ case UPLOADER_ERR_ILLEGAL: $mssg =  __d('uploader', 'Illegal upload', true); break;
+			//~ case UPLOADER_ERR_SIZE: $mssg =  __d('uploader', 'File too large', true); break;
+			//~ case UPLOADER_ERR_TYPE: $mssg =  __d('uploader', 'Illegal file type', true); break;
+			//~ case UPLOADER_ERR_DIR: $mssg =  __d('uploader', 'Destination directory does not exist', true); break;
+			//~ case UPLOADER_ERR_PERMS: $mssg =  __d('uploader', 'Destination directory is not writable', true); break;
+			//~ case UPLOADER_ERR_FILE_EXISTS: $mssg =  __d('uploader', 'File exists', true); break;
+			//~ case UPLOADER_ERR_ACTION: $mssg =  __d('uploader', 'Action failed', true); break;
+			//~ case UPLOADER_ERR_DB: $mssg =  __d('uploader', 'Saving the upload\'s data failed', true); break;
+			//~ case UPLOAD_ERR_INI_SIZE: $mssg =  __d('uploader', 'File too large (php.ini)', true); break;
+			//~ case UPLOAD_ERR_FORM_SIZE: $mssg =  __d('uploader', 'File too large (form)', true); break;
+			//~ case UPLOAD_ERR_PARTIAL: $mssg =  __d('uploader', 'Upload has been interrupted', true); break;
+			//~ case UPLOAD_ERR_NO_FILE: $mssg =  __d('uploader', 'No file to upload', true); break;
+			//~ case UPLOAD_ERR_NO_TMP_DIR: $mssg =  __d('uploader', 'No tmp directory', true); break;
+			//~ case UPLOAD_ERR_CANT_WRITE: $mssg =  __d('uploader', 'Tmp directory not writable', true); break;
+			//~ case UPLOAD_ERR_EXTENSION: $mssg =  __d('uploader', 'PHP Extension upload error', true); break;
+			//~ default: $mssg = __d('upload', 'Unknown error'); break;
+		//~ }
+		//~ return ($mssg);
+	//~ }
 
 	function validateMaxFileSize($check){
 		$alias = key($this->data);
