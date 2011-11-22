@@ -30,8 +30,9 @@ etc. - stay tuned
 In the model(s) which shall "have" uploads, attach the Uploadable behavior:
 
 
-```php
+~~~php
 
+<?php
 class YourModel extends AppModel {
 
 	public $actsAs = array(
@@ -40,8 +41,9 @@ class YourModel extends AppModel {
 	
 	...
 }
+?>
 
-```
+~~~
 
 Settings are very extensive but allow for very flexible configuration of the plugin:
 
@@ -62,6 +64,8 @@ according component. See below for details on this.
 Back to the settings for the UploadableBehavior:
 
 ~~~php
+
+<?php
 $settings = array(
 	'uploadAlias' => array(
 		'max' => number,					// Max. number of uploads per record
@@ -85,6 +89,7 @@ $settings = array(
 	// You can add any number of uploadAliases here
 );
 
+?>
 ~~~
 
 max
@@ -172,6 +177,8 @@ The plugin comes with a Helper which outputs the appropriate file input and a li
 For your model's edit action do this:
 
 ~~~php
+
+<?php
 // File: /app/Controller/foobars.php
 
 public $helpers = array('Uploader.UploaderForm');
@@ -206,15 +213,16 @@ public function edit($id = null) {
 	$this->Item->recursive = 1;
 	$this->request->data = $this->Item->read(null, $id);
 }
+?>
 
 ~~~
 
 ~~~php
 
-// File: /app/View/Foobars/edit.ctp
-
 <?php
-	echo $this->Form->create('Item', array('type' => 'file'));?>
+	// File: /app/View/Foobars/edit.ctp
+
+	echo $this->Form->create('Item', array('type' => 'file'));
 	echo $this->Form->input('id');
 	echo $this->Form->input('title');
 
@@ -260,6 +268,7 @@ Default:
 
 ~~~php
 
+<?php
 array(
 	'fileType' => 		__d('uploader', 'This filetype is not allowed', true),
 	'maxSize' => 		__d('uploader', 'The file is too large', true),
@@ -267,6 +276,7 @@ array(
 	'isUploadedFile' =>	__d('uploader', 'Upload failed', true),
 	'max' => 			__d('uploader', 'Maximum number of uploads exceeded', true)
 );
+?>
 
 ~~~
 
@@ -292,6 +302,7 @@ Here is an example:
 
 ~~~php
 
+<?php
 class CustomActionsComponent extends Component {
 
 	function load($filename){
@@ -322,6 +333,7 @@ class CustomActionsComponent extends Component {
 		return ($success);
 	}
 }
+?>
 
 ~~~
 
