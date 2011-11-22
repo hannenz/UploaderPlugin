@@ -36,7 +36,7 @@ class UploadsController extends UploaderAppController {
 
 	function beforeFilter(){
 		parent::beforeFilter();
-		$this->uploadDate = $this->normalizeInputData();
+		$this->uploadData = $this->normalizeInputData();
 	}
 
 	/* Normalizes the upload form data to one single array where each
@@ -149,82 +149,6 @@ class UploadsController extends UploaderAppController {
 				'foreign_key' => $foreign_key
 			)
 		);
-
-		//~ $data = $this->RequestHandler->isAjax()
-			//~ ? $this->params['url']['data']
-			//~ : $this->data
-		//~ ;
-//~
-		//~ // Do the actual upload stuff
-		//~ $uploads = $this->upload($data['Upload']['alias']);
-		//~ $n = count($uploads);
-		//~ $err = array();
-//~
-		//~ foreach ($uploads as $upload){
-			//~ if ($upload['Upload']['error'] == 0){
-				//~ unset($upload['Upload']['error']);
-				//~ if ($data['Upload']['foreign_key'] == 0){
-					//~ $upload['Upload']['session_id'] = session_id();
-				//~ }
-				//~ $u = null;
-				//~ if ($data['Upload']['id'] > 0){
-					//~ $upload['Upload']['id'] = $data['Upload']['id'];
-					//~ $u = $this->Upload->read(null, $data['Upload']['id']);
-				//~ }
-				//~ else {
-					//~ $this->Upload->id = null;
-				//~ }
-//~
-				//~ $upload['Upload']['alias'] = $data['Upload']['alias'];
-				//~ $upload['Upload']['model'] = $this->config[$data['Upload']['alias']]['model'];
-				//~ $upload['Upload']['foreign_key'] = $data['Upload']['foreign_key'];
-//~
-				//~ if (!$this->Upload->save($upload)){
-					//~ $upload['Upload']['error'] = UPLOADER_ERR_DB;
-					//~ $err[] = $upload;
-					//~ $fails++;
-				//~ }
-				//~ else {
-					//~ if ($u !== null){
-						//~ $this->Upload->delete_files($u);
-					//~ }
-				//~ }
-			//~ }
-			//~ else {
-				//~ $err[] = $upload;
-			//~ }
-		//~ }
-		//~ $fails = count($err);
-		//~ $success = ($fails == 0);
-//~
-		//~ // Handle errors
-		//~ if (!$success){
-			//~ if ($n > 1){
-				//~ $mssg = array(sprintf(__d('uploader', '%u of %u files uploaded. The following error(s) occured during upload:', true), $n - $fails, $n));
-			//~ }
-			//~ foreach ($err as $e){
-				//~ $mssg[] = sprintf('%s: %s', $e['Upload']['original_filename'], $this->get_error_message($e['Upload']['error']));
-			//~ }
-		//~ }
-		//~ else {
-			//~ $mssg = array(__d('uploader',	$n == 1 ? $upload['Upload']['original_filename'] . ' has been uploaded successfully' : 'All files have been uploaded successfully', true));
-		//~ }
-//~
-		//~ // Redirect if not ajax and if no errors occured
-//~
-		//~ if (!$this->RequestHandler->isAjax()){
-			//~ $this->Session->setFlash(join('<br>', $mssg), $success ? 'success' : 'error' , array('plugin' => 'uploader'), 'uploader'.$data['Upload']['alias']);
-			//~ $redirect = !empty($data['Upload']['redirect']) ? $data['Upload']['redirect'] : $this->referer();
-			//~ $this->redirect($redirect);
-		//~ }
-		//~ else {
-			//~ echo json_encode(array(
-				//~ 'success' => $success,
-				//~ 'message' => join('<br>', $mssg),
-				//~ 'id' => $this->Upload->id
-			//~ ));
-			//~ die();
-		//~ }
 	}
 
 
