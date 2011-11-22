@@ -344,33 +344,36 @@ class Upload extends AppModel {
 		$config = $this->config[$data['alias']];
 
 		foreach ($config['files'] as $file){
-			$path = rtrim($file['path'], '/') . DS;
-			$full_path = $path . $data['filename'];
+			$full_path = rtrim($file['path'], '/') . DS . $data['filename'];
 
 			if (isset($file['action']) && count($file['action']) > 0 && in_array($data['type'], array('image/jpeg', 'image/gif', 'image/png'))){
-				App::import('Component', 'Uploader.Image');
-				$this->Image = new ImageComponent(new ComponentCollection);
-				$this->Image->load($data['tmp_name']);
-				foreach ($file['action'] as $action => $params){
-					if (method_exists($this->Image, $action)){
-						$params = $this->arrayfy($params);
-						switch ($action){
-							case 'scale':
-								$this->Image->scale($params[0]);
-								break;
-							case 'resize':
-								$this->Image->resize($params[0], isset($params[1]) ? $params[1] : null);
-								break;
-							case 'crop':
-								$this->Image->crop(isset($params[0]) ? $params[0] : null, isset($params[1]) ? $params[1] : true);
-								break;
-							default:
-								//ImageComponent::{$action}($params);
-								break;
+				foreach ($file['action'] as $component => $actionData){
+
+					App::import('Component', 'Uploader.'.$component);
+					$name = $component.'Component';
+					$Component = new $name(new ComponentCollection);
+
+					$Component->load($data['tmp_name']);
+
+					foreach ($actionData as $key => $value){
+						if (is_numeric($key)){
+							$method = $value;
+							$params = array();
+						}
+						else {
+							$method = $key;
+							$params = $value;
+						}
+						if (method_exists($Component, $method)){
+							if (!is_array($params)){
+								$params = array($params);
+							}
+							$Component->{$method}($params);
 						}
 					}
+
+					$Component->save($full_path, null, 75, 0666);
 				}
-				$this->Image->save($full_path, null, 75, 0666);
 			}
 			else {
 				// we checked is_uploaded_file and proper write

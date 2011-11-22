@@ -75,8 +75,6 @@ class UploadableBehavior extends ModelBehavior {
 			return (true);
 		}
 
-		$Model->wasUploading = true;
-
 		foreach ($_FILES as $uploadAlias => $fileData){
 			if (!empty($fileData['name'])){
 				$uploads = array();
@@ -107,6 +105,7 @@ class UploadableBehavior extends ModelBehavior {
 					);
 				}
 				$errors = array();
+				$Model->wasUploading = count($uploads) > 0;
 				foreach ($uploads as $upload){
 					$upload['alias'] = $uploadAlias;
 					$upload['model'] = $Model->name;

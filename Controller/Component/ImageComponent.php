@@ -32,14 +32,6 @@ class ImageComponent extends Component {
 	private $height;
 	private $ratio;
 
-	//~ function __construct($filename = null){
-		//~ $this->image = null;
-		//~ if ($filename){
-			//~ $this->load($filename);
-		//~ }
-		//~ parent::__construct();
-	//~ }
-
 /* Load the image that will be used for further processing
  *
  * name: load
@@ -169,17 +161,27 @@ class ImageComponent extends Component {
  * @return boolean
  * 		sucess
  */
-	function resize($width = null, $height = null, $shrinkonly = true){
+	function resize($options){
+		$options = array_merge(array(
+			'width' => null,
+			'height' => null,
+			'shrinkOnly' => true
+		), $options);
 		/* :TODO: Shrinkonly! */
+
 		if ($this->image == null){
 			return (false);
 		}
+
+		extract ($options);
+
 		if ($width == null){
 			$width = $height * $this->ratio;
 		}
 		if ($height == null){
 			$height = $width / $this->ratio;
 		}
+
 		$new_image = imagecreatetruecolor($width, $height);
 		imagecopyresampled($new_image, $this->image, 0, 0, 0, 0, $width, $height, $this->width, $this->height);
 
@@ -196,8 +198,8 @@ class ImageComponent extends Component {
  * @return boolean
  * 		success
  */
-	function scale($factor){
-		return ($this->resize($this->width * $factor, $this->height * $factor));
+	function scale($options){
+		return ($this->resize($this->width * $options['factor'], $this->height * $options['factor']));
 	}
 
 /* Crop image to a rectangle with the smaller dimension of the originals
@@ -213,13 +215,18 @@ class ImageComponent extends Component {
  * @return boolean
  * 		success
  */
-	function crop($width = null, $center = true){
+	function crop($options){
+		$options = array_merge(array(
+			'center' => true
+		), $options);
+		extract ($options);
+
 		if ($this->image == null){
 			return (false);
 		}
 
 		$offset = ($center) ? (abs($this->width - $this->height) / 2) : 0;
-		$length = $this->width > $this->height ? $this->height : $this->width;
+		$length = min($this->width, $this->height);
 		$new_image = imagecreatetruecolor($length, $length);
 
 		if ($this->width > $this->height){
@@ -231,9 +238,6 @@ class ImageComponent extends Component {
 
 		$this->set_image($new_image);
 
-		if ($width){
-			return ($this->resize($width, null));
-		}
 		return (true);
 	}
 
