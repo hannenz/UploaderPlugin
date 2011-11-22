@@ -247,6 +247,55 @@ You can specify the element to be used to render the upload list...
 
 Default:
 default_element.ctp
+_
 
 (This needds improvement!!!)
+
+
+##Custom Actions
+
+Each uploaded file can be modified by one or more actions. The plugin comes with an ImageComponent which provides common image manipulating actions, namely crop, resize, scale and desaturate.
+To provide custom action only needs to implement your own Component (inside the plugin's components folder: /app/Plugin/Uploader/Controller/Component/YourComponent.php).
+The component must implement at least the two methods load() which load the original file and save it back after all actions have been applied.
+Both methods take the input/ outut file's full path as first argument and must return a boolean value which indicates success of the operation.
+
+Here is an example
+
+~~~
+
+class CustomActionsComponent extends Component {
+
+	function load($filename){
+		// Load the unmodified file into memory
+		// You want to have a pointer to the file stored somehow like
+		// $this->file = file_get_contents($filename)
+		// or something similar, so you can access the file from within
+		// the actions.
+		
+		return ($success);
+	}
+	
+	function save($filename){
+		// Save the file to disk
+		
+		return ($success);
+	}
+	
+	function my_action($options = array()){
+		$options = array_merge(array(
+				'defaultOption1' => defaultValue1
+			),
+			$options
+		);
+		
+		// Do superfancy stuff
+		
+		return ($success);
+	}
+}
+
+~~~
+
+Your custom actions are Component methods which take one array argument as options which are passed for each action like specified in the behavior's settings, so they are key/ value pairs. The example above shows how to provide default settings for option key's that are not set.
+For each ComponentName in the behavior's setting the plugin will load the uploaded file _once_ by calling the load method, then call all actions specified inside the component's array and after that saves the file back to its final destination by calling the save() method of the component.
 
