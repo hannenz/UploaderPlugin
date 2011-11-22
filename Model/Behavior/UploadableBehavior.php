@@ -38,8 +38,12 @@ class UploadableBehavior extends ModelBehavior {
 
 		foreach ($this->settings[$Model->alias] as $uploadAlias => $data){
 			$this->settings[$Model->alias][$uploadAlias]['model'] = $Model->alias;
+			$type = (isset($this->settings[$Model->alias][$uploadAlias]['max']) && $this->settings[$Model->alias][$uploadAlias]['max'] == 1)
+				? 'hasMany'
+				: 'hasMany'
+			;
 			$Model->bindModel(array(
-				'hasMany' => array(
+				$type => array(
 					$uploadAlias => array(
 						'className' => 'Uploader.Upload',
 						'foreignKey' => 'foreign_key',
@@ -53,19 +57,24 @@ class UploadableBehavior extends ModelBehavior {
 				)
 			), false);
 		}
-	}
-
-	function beforeSave($Model){
 		App::uses('Upload', 'Uploader.Model');
 		$this->Upload = new Upload();
 		$this->Upload->config = $this->settings[$Model->alias];
+	}
+
+	function beforeSave($Model){
+		//~ App::uses('Upload', 'Uploader.Model');
+		//~ $this->Upload = new Upload();
+		//~ $this->Upload->config = $this->settings[$Model->alias];
 
 		$Model->uploadErrors = null;
 		$Model->wasUploading = false;
+		$Model->wasDeleting = false;
 
 		if (!empty($Model->data['UploadsToDelete'])){
 			foreach ($Model->data['UploadsToDelete'] as $id => $delete){
 				if ($delete > 0){
+					$Model->wasDeleting = true;
 					$this->Upload->delete($id);
 				}
 			}
@@ -134,9 +143,9 @@ class UploadableBehavior extends ModelBehavior {
  */
 	function afterSave(&$Model, $created){
 		if ($created){
-			App::uses('Upload', 'Uploader.Model');
-			$this->Upload = new Upload();
-			$this->Upload->config = $this->settings[$Model->alias];
+			//~ App::uses('Upload', 'Uploader.Model');
+			//~ $this->Upload = new Upload();
+			//~ $this->Upload->config = $this->settings[$Model->alias];
 			$this->Upload->savePending($Model->id);
 		}
 	}
@@ -157,9 +166,9 @@ class UploadableBehavior extends ModelBehavior {
  * name: beforeDelete
  */
 	function beforeDelete($Model, $cascade = true){
-		App::uses('Upload', 'Uploader.Model');
-		$this->Upload = new Upload();
-		$this->Upload->config = $this->settings[$Model->alias];
+		//~ App::uses('Upload', 'Uploader.Model');
+		//~ $this->Upload = new Upload();
+		//~ $this->Upload->config = $this->settings[$Model->alias];
 
 		foreach ($this->settings[$Model->alias] as $uploadAlias => $data){
 			$conditions = array(
@@ -181,9 +190,9 @@ class UploadableBehavior extends ModelBehavior {
 	function afterFind($Model, $results, $primary = false){
 		if ($primary){
 
-			App::uses('Upload', 'Uploader.Model');
-			$this->Upload = new Upload();
-			$this->Upload->config = $this->settings[$Model->alias];
+			//~ App::uses('Upload', 'Uploader.Model');
+			//~ $this->Upload = new Upload();
+			//~ $this->Upload->config = $this->settings[$Model->alias];
 
 			foreach ($results as $n => $result){
 				foreach ($this->settings[$Model->alias] as $uploadAlias => $setting){
