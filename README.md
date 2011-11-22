@@ -59,8 +59,10 @@ $settings = array(
 				'path' => 'path/to/destination',	// Give a path relative to the application's webroot (not the plugin's!!)
 													// Make sure that this path existst and is writable!!
 				'action' => array(					// Array of actions to perform on this fileAlias
-					'crop',							// Here is a typical example to make thumbnails
-					'resize' => array('width' => 100)
+					'ComponentName' => array(				// The name of the component which implements the action(s)
+						'methodName',
+						'methodName' => array('parameterName' => $parameterVale)
+					)
 				)
 			),
 			// You can add any number of fileAliases here
