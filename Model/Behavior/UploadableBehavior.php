@@ -22,12 +22,23 @@
  * File: /app/plugins/uploader/models/behaviors/uploadable.php
  *
  * Uploader Plugin: Uploadable behavior
- * This class extends your model's class as it adds the necessary callbacks
- * for behaving according to the Uploader plugin.
+ * This class extends your model's class as it adds the necessary 
+ * associations and callbacks for behaving according to the Uploader
+ * plugin.
  *
  */
+ 
+ 
 class UploadableBehavior extends ModelBehavior {
 
+/* Initialize the behavior
+ * 
+ * Stores the behaviors settings and binds each uploadAlias
+ * as a hasMany association to the model the behavior is attached to.
+ * Loads an instance of the Upload model
+ * 
+ * name: setup
+ */
 	function setup(Model $Model, $settings){
 		if (!isset($this->settings[$Model->alias])){
 			$this->settings[$Model->alias] = array(
@@ -62,10 +73,23 @@ class UploadableBehavior extends ModelBehavior {
 		$this->Upload->config = $this->settings[$Model->alias];
 	}
 
+/* Callback
+ * Normalizes input data to contain one array of file data regardless
+ * if the file input was a "multiple" or not; then calls the
+ * Upload model's save method for each data set to save the upload.
+ * 
+ * Errors during upload operation are stored in the model's $uploadErrors
+ * property
+ * 
+ * If an upload has been taken place, the model's property $wasUploading
+ * is set to true
+ * 
+ * If a deletion has taken place, the model's property $wasDeleting is set
+ * to true
+ * 
+ * name: beforeSave
+ */
 	function beforeSave($Model){
-		//~ App::uses('Upload', 'Uploader.Model');
-		//~ $this->Upload = new Upload();
-		//~ $this->Upload->config = $this->settings[$Model->alias];
 
 		$Model->uploadErrors = null;
 		$Model->wasUploading = false;
@@ -136,39 +160,24 @@ class UploadableBehavior extends ModelBehavior {
 	}
 
 
-/* Assigns any pending uploads to the record that has been saved
+/* Callback
+ * Assigns any pending uploads to the record that has been saved
  *
  * name: afterSave
- *
  */
 	function afterSave(&$Model, $created){
 		if ($created){
-			//~ App::uses('Upload', 'Uploader.Model');
-			//~ $this->Upload = new Upload();
-			//~ $this->Upload->config = $this->settings[$Model->alias];
 			$this->Upload->savePending($Model->id);
 		}
 	}
 
-/* Deletes any uploads that belong to the record which is going to be
+/* Callback
+ * Deletes any uploads that belong to the record which is going to be
  * deleted. Removes all according files, too (in the Upload model).
- *
- * This is some kind of workaround, since this SHOULD be done via the
- * dependent parameter in the model's association but Cake produces
- * wrong(?) SQL statements so I decided to implement this functionality
- * in this behavior. A pity :(
- *
- * BE sure to have the dependent parameter set to FALSE for the upload's
- * association, or else Cake will produce those wrong SQL statements and
- * you will end up with error messages, a cluttered database and a load
- * of unneccessary files... ;)
  *
  * name: beforeDelete
  */
 	function beforeDelete($Model, $cascade = true){
-		//~ App::uses('Upload', 'Uploader.Model');
-		//~ $this->Upload = new Upload();
-		//~ $this->Upload->config = $this->settings[$Model->alias];
 
 		foreach ($this->settings[$Model->alias] as $uploadAlias => $data){
 			$conditions = array(
@@ -187,13 +196,14 @@ class UploadableBehavior extends ModelBehavior {
 		return (true);
 	}
 
+/* Callback
+ * Extends the data for each upload contained by the record by
+ * fileAlias data and icon path.
+ * 
+ * name: afterFind
+ */
 	function afterFind($Model, $results, $primary = false){
 		if ($primary){
-
-			//~ App::uses('Upload', 'Uploader.Model');
-			//~ $this->Upload = new Upload();
-			//~ $this->Upload->config = $this->settings[$Model->alias];
-
 			foreach ($results as $n => $result){
 				foreach ($this->settings[$Model->alias] as $uploadAlias => $setting){
 					if (isset($result[$uploadAlias])){

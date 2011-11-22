@@ -22,19 +22,12 @@
  *		File: /app/plugins/uploader/models/upload.php
  */
 
-define('DEFAULT_DESTINATION', WWW_ROOT . 'files');
-define('UPLOADER_ERR_CONFIG', 10);
-define('UPLOADER_ERR_ILLEGAL', 11);
-define('UPLOADER_ERR_SIZE', 12);
-define('UPLOADER_ERR_TYPE', 13);
-define('UPLOADER_ERR_DIR', 14);
-define('UPLOADER_ERR_PERMS', 15);
-define('UPLOADER_ERR_FILE_EXISTS', 16);
-define('UPLOADER_ERR_ACTION', 17);
-define('UPLOADER_ERR_DB', 18);
 
 class Upload extends AppModel {
 	var $name = 'Upload';
+
+
+	/* Validation rules */
 
 	var $validate = array(
 		'is_uploaded_file' => array(
@@ -70,13 +63,10 @@ class Upload extends AppModel {
 	);
 
 /* Callback
- * Called before an Upload is validated and calls the prepareUpload()
- * method, which will prepate the data structure to contain
- * upload relevant data.
+ * Called before an Upload is validated and prepares the data structure
+ * to contain upload relevant data.
  *
  * name: beforeValidate
- * @return boolean
- * 		Always returns true to proceed to validation
  */
 	function beforeValidate(){
 
@@ -106,7 +96,11 @@ class Upload extends AppModel {
 
 		// Count existing uploads
 		$uploads = $this->find('all', array(
-			'conditions' => array($alias . '.alias' => $alias, $alias . '.model' => $data[$alias]['model'], $alias . '.foreign_key' => $data[$alias]['foreign_key']),
+			'conditions' => array(
+				$alias.'.alias' => $alias,
+				$alias.'.model' => $data[$alias]['model'],
+				$alias.'.foreign_key' => $data[$alias]['foreign_key']
+			),
 			'fields' => array($alias.'.id'),
 			'order' => array($alias.'.pos' => 'ASC')
 		));
@@ -135,21 +129,71 @@ class Upload extends AppModel {
 		$this->data = $data;
 	}
 
-/* Callback: Upload the files
+/* Uploads one file
+ * Applies any actions to the file and moves it to the
+ * destination path.
  *
- * name: beforeSave
+ * name: upload
+ * @param array $data
+ * 		Upload data
+ *
+ * @return boolean
+ * 		flags success of the operation
  */
- 	function beforeSave(){
+	function beforeSave(){
+
 		$alias = key($this->data);
-		if ($alias == 'Upload'){
-			return (true);
+		
+		if ($alias != 'Upload'){
+
+			$data = $this->data[$alias];
+			$config = $this->config[$data['alias']];
+	
+			foreach ($config['files'] as $file){
+				$full_path = WWW_ROOT . DS . trim($file['path'], '/') . DS . $data['filename'];
+	
+				if (isset($file['action']) && count($file['action']) > 0 && in_array($data['type'], array('image/jpeg', 'image/gif', 'image/png'))){
+					foreach ($file['action'] as $component => $actionData){
+	
+						App::import('Component', 'Uploader.'.$component);
+						$name = $component.'Component';
+						$Component = new $name(new ComponentCollection);
+	
+						$Component->load($data['tmp_name']);
+	
+						foreach ($actionData as $key => $value){
+							if (is_numeric($key)){
+								$method = $value;
+								$params = array();
+							}
+							else {
+								$method = $key;
+								$params = $value;
+							}
+							if (method_exists($Component, $method)){
+								if (!is_array($params)){
+									$params = array($params);
+								}
+								$Component->{$method}($params);
+							}
+						}
+	
+						$Component->save($full_path, null, 75, 0666);
+					}
+				}
+				else {
+					// we checked is_uploaded_file and proper write
+					// permissions in beforeValidate already, so
+					// move_uploaded_file() SHOULD return no errors
+					// here...??!
+					@move_uploaded_file($data['tmp_name'], $full_path);
+					chmod($full_path, 0666);
+				}
+			}
 		}
-		$upload = $this->data[$alias];
-		if ($this->uploadOne($upload)){
-			return (true);
-		}
-		return (false);
+		return true;
 	}
+
 
 /* Callback: Called after (successful) upload.
  * Used to delete a replacing upload, which was marked during the
@@ -158,9 +202,9 @@ class Upload extends AppModel {
  * name: afterSave
  */
 	function afterSave($created){
-
 		if (!empty($this->deleteMe)){
 			$this->delete($this->deleteMe);
+			unset ($this->deleteMe);
 		}
 	}
 
@@ -197,6 +241,28 @@ class Upload extends AppModel {
 		return (true);
 	}
 
+/* Deletes all files for the given upload
+ *
+ * name: deleteFiles
+ * @param array	$upload
+ * 		The upload
+ */
+	function deleteFiles($upload){
+
+		$alias = key($upload);
+		// In case $alias is 'Upload', we need the real alias
+		$uploadAlias = $upload[$alias]['alias'];
+
+		$files = $this->config[$uploadAlias]['files'];
+		if (!empty($files) && is_array($files)){
+			foreach ($files as $file){
+				$delpath = $file['path'] . DS . $upload[$alias]['filename'];
+				@unlink($delpath);
+			}
+		}
+	}
+
+
 /* Return all pending uploads for the given $model, $alias and $id
  *
  * name: get_pending
@@ -209,6 +275,10 @@ class Upload extends AppModel {
  *		Array of uploads that have not been assigned to a record yet.
  */
 	function getPending($model = null, $alias = null){
+
+		$backAlias = $this->alias;
+		$this->alias = 'Upload';
+		
 		$conditions = array(
 			'Upload.session_id' => session_id(),
 			'Upload.foreign_key <=' => 0
@@ -220,7 +290,9 @@ class Upload extends AppModel {
 		if ($alias !== null){
 			$conditions['Upload.alias'] = $alias;
 		}
-		return $this->find('all', array('conditions' => $conditions));
+		$pending = $this->find('all', array('conditions' => $conditions));
+		$this->alias = $backAlias;
+		return ($pending);
 	}
 
 /* Saves all pending uploads by assiging them to the record specified by
@@ -246,7 +318,7 @@ class Upload extends AppModel {
 		$pending_uploads = $this->getPending($model, $alias);
 		foreach ($pending_uploads as $upload){
 			$this->id = $upload['Upload']['id'];
-			$this->saveField('foreign_key', $id);
+			$this->saveField('foreign_key', $id, array('validate' => false, 'callbacks' => false));
 		}
 	}
 
@@ -307,85 +379,7 @@ class Upload extends AppModel {
 	}
 
 
-/* Deletes all files for the given upload
- *
- * name: deleteFiles
- * @param array	$upload
- * 		The upload
- */
-	function deleteFiles($upload){
 
-		$alias = key($upload);
-		// In case $alias is 'Upload', we need the real alias
-		$uploadAlias = $upload[$alias]['alias'];
-
-		$files = $this->config[$uploadAlias]['files'];
-		if (!empty($files) && is_array($files)){
-			foreach ($files as $file){
-				$delpath = $file['path'] . DS . $upload[$alias]['filename'];
-				@unlink($delpath);
-			}
-		}
-	}
-
-/* Uploads one file
- * Applies any actions to the file and moves it to the
- * destination path.
- *
- * name: upload
- * @param array $data
- * 		Upload data
- *
- * @return boolean
- * 		flags success of the operation
- */
-	function uploadOne($data){
-
-		$config = $this->config[$data['alias']];
-
-		foreach ($config['files'] as $file){
-			$full_path = WWW_ROOT . DS . trim($file['path'], '/') . DS . $data['filename'];
-
-			if (isset($file['action']) && count($file['action']) > 0 && in_array($data['type'], array('image/jpeg', 'image/gif', 'image/png'))){
-				foreach ($file['action'] as $component => $actionData){
-
-					App::import('Component', 'Uploader.'.$component);
-					$name = $component.'Component';
-					$Component = new $name(new ComponentCollection);
-
-					$Component->load($data['tmp_name']);
-
-					foreach ($actionData as $key => $value){
-						if (is_numeric($key)){
-							$method = $value;
-							$params = array();
-						}
-						else {
-							$method = $key;
-							$params = $value;
-						}
-						if (method_exists($Component, $method)){
-							if (!is_array($params)){
-								$params = array($params);
-							}
-							$Component->{$method}($params);
-						}
-					}
-
-					$Component->save($full_path, null, 75, 0666);
-				}
-			}
-			else {
-				// we checked is_uploaded_file and proper write
-				// permissions in beforeValidate already, so
-				// move_uploaded_file() SHOULD return no errors
-				// here...??!
-				@move_uploaded_file($data['tmp_name'], $full_path);
-				chmod($full_path, 0666);
-			}
-		}
-		return true;
-	}
 
 /*
  * Detects the mime_type of a given file, trying different methods,
@@ -478,56 +472,9 @@ class Upload extends AppModel {
 	}
 
 
-/*
- * Normalize var to an array
- *
- * name: arryfy
- * @param mixed $var
- * 		The var to normalize
- * @return array
- *		Normalized array
- */
-	private function arrayfy($var){
-		if (!is_array($var)){
-			return (array($var));
-		}
-		return ($var);
-	}
+/* Validation methods */
 
-	/*
-	 * Returns the error message for a given error constant
-	 *
-	 * name: getErrorMessage
-	 * @param int $e
-	 * 		The error code (constant)
-	 * @return string
-	 * 		The error message
-	 *
-	 */
-	//~ function getErrorMessage($e){
-		//~ switch ($e){
-			//~ case UPLOADER_ERR_CONFIG: $mssg =  __d('uploader', 'Missing configuration file', true); break;
-			//~ case UPLOADER_ERR_ILLEGAL: $mssg =  __d('uploader', 'Illegal upload', true); break;
-			//~ case UPLOADER_ERR_SIZE: $mssg =  __d('uploader', 'File too large', true); break;
-			//~ case UPLOADER_ERR_TYPE: $mssg =  __d('uploader', 'Illegal file type', true); break;
-			//~ case UPLOADER_ERR_DIR: $mssg =  __d('uploader', 'Destination directory does not exist', true); break;
-			//~ case UPLOADER_ERR_PERMS: $mssg =  __d('uploader', 'Destination directory is not writable', true); break;
-			//~ case UPLOADER_ERR_FILE_EXISTS: $mssg =  __d('uploader', 'File exists', true); break;
-			//~ case UPLOADER_ERR_ACTION: $mssg =  __d('uploader', 'Action failed', true); break;
-			//~ case UPLOADER_ERR_DB: $mssg =  __d('uploader', 'Saving the upload\'s data failed', true); break;
-			//~ case UPLOAD_ERR_INI_SIZE: $mssg =  __d('uploader', 'File too large (php.ini)', true); break;
-			//~ case UPLOAD_ERR_FORM_SIZE: $mssg =  __d('uploader', 'File too large (form)', true); break;
-			//~ case UPLOAD_ERR_PARTIAL: $mssg =  __d('uploader', 'Upload has been interrupted', true); break;
-			//~ case UPLOAD_ERR_NO_FILE: $mssg =  __d('uploader', 'No file to upload', true); break;
-			//~ case UPLOAD_ERR_NO_TMP_DIR: $mssg =  __d('uploader', 'No tmp directory', true); break;
-			//~ case UPLOAD_ERR_CANT_WRITE: $mssg =  __d('uploader', 'Tmp directory not writable', true); break;
-			//~ case UPLOAD_ERR_EXTENSION: $mssg =  __d('uploader', 'PHP Extension upload error', true); break;
-			//~ default: $mssg = __d('upload', 'Unknown error'); break;
-		//~ }
-		//~ return ($mssg);
-	//~ }
-
-	function validateMaxFileSize($check){
+	private function validateMaxFileSize($check){
 		$alias = key($this->data);
 		if (!empty($this->config[$alias]['maxSize']) && $this->config[$alias]['maxSize'] > 0){
 			return ($check['size'] <= $this->config[$alias]['maxSize']);
@@ -535,7 +482,7 @@ class Upload extends AppModel {
 		return (true);
 	}
 
-	function validateFileType($check){
+	private function validateFileType($check){
 		$alias = key($this->data);
 		if (!empty($this->config[$alias]['allow'])){
 			return ($this->isAllowed($check['type'], $this->config[$alias]['allow']));
@@ -543,7 +490,7 @@ class Upload extends AppModel {
 		return (true);
 	}
 
-	function validateMax($check){
+	private function validateMax($check){
 		$alias = key($this->data);
 		if ($this->data[$alias]['foreign_key'] == 0){
 			return (true);
