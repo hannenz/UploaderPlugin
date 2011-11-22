@@ -29,8 +29,15 @@ class UploaderFormHelper extends AppHelper {
 	function file($uploadAlias, $options = array()){
 		$options = array_merge(array(
 			'multiple' => false,
-		),
-		$options);
+			'error' => array(
+				'fileType' => 		__d('uploader', 'This filetype is not allowed', true),
+				'maxSize' => 		__d('uploader', 'The file is too large', true),
+				'noError' => 		__d('uploader', 'Upload failed', true),
+				'isUploadedFile' =>	__d('uploader', 'Upload failed', true),
+				'max' => 			__d('uploader', 'Maximum number of uploads exceeded', true)
+			)
+		), $options);
+
 		if (empty($options['label'])){
 			$options['label'] = Inflector::pluralize($uploadAlias);
 		}
