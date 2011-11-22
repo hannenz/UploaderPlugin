@@ -71,6 +71,8 @@ $settings = array(
 
 ~~~
 
+## Uploads as hasMany objects
+
 Once the behavior is configured your model "acts as a upload-container".
 The association is a standard "hasMany" relation and each find on your
 model now receives the according uploads with data like this:
@@ -130,4 +132,119 @@ Array
 )
 
 ~~~
+
+## UploaderFormHelper
+
+The plugin comes with a Helper which outputs the appropriate file input
+and a list of available uploads.
+
+For fpr your example model's edit action do this:
+
+~~~
+// File: /app/Controller/foobars.php
+
+public $helpers = array('Uploader.UploaderForm');
+
+public function edit($id = null) {
+	$this->Item->id = $id;
+	if (!$this->Item->exists()) {
+		throw new NotFoundException(__('Invalid item'));
+	}
+	if ($this->request->is('post') || $this->request->is('put')) {
+		if ($this->Item->save($this->request->data)) {
+			$this->Session->setFlash(__('The item has been saved'));
+
+/* HERE IS THE UPLOADER PLUGIN RELEVANT PART --- */
+
+			// Check for upload errors
+			if (!empty($this->Item->uploadErrors)){
+
+				// Upload errors occured, give a flash message and re-render the edit view
+				$this->Session->setFlash(__('File upload failed'));
+
+				// This one is important!!
+				$this->set('uploadErrors', $this->Item->uploadErrors);
+			}
+
+/* END OF UPLOADER PLUGIN RELEVANT PART --- */
+		}
+		else {
+			$this->Session->setFlash(__('The item could not be saved. Please, try again.'));
+		}
+	}
+	$this->Item->recursive = 1;
+	$this->request->data = $this->Item->read(null, $id);
+}
+
+~~~
+
+~~~
+
+// File: /app/View/Foobars/edit.ctp
+
+<?php
+	echo $this->Form->create('Item', array('type' => 'file'));?>
+	echo $this->Form->input('id');
+	echo $this->Form->input('title');
+
+	echo $this->UploaderForm->file('Picture');
+	echo $this->UploaderForm->file('Image', array('multiple' => true));
+	echo $this->UploaderForm->file('Attachment', array('multiple' => true));
+	echo $this->Form->end(__('Submit'));
+?>
+
+~~~
+
+That's it. The Helper's file() method outputs markup that behaves accordingly to any other
+input, including validation (if you don't forget to set 'uploadErrors' in the controller!!)
+
+Furthermore it outputs a list of the uploads that this record has already.
+
+The UploaderForm::file method takes the uploadAlias as first argument and
+optionally an options array as second argument.
+
+Options are cake-style key/ value pairs and can be:
+
+####multiple
+whether the upload field shall have the multiple property (modern browsers
+provide a multi-select file selector and allow for multiple uploads)
+
+Default: false
+
+####error
+Array of validation error messages, give the following keys for the different errors:
+
+
+maxSize
+: file was too large
+fileType
+: Invalid filetype
+max
+: Maximum number of files for this record exceeded
+isUploadedFile
+: Illegal upload (php's is_uploaded_file() failed)
+isError
+: Illegal upload (php reported error != 0 in form data)
+
+
+Default:
+
+~~~
+array(
+				'fileType' => 		__d('uploader', 'This filetype is not allowed', true),
+				'maxSize' => 		__d('uploader', 'The file is too large', true),
+				'noError' => 		__d('uploader', 'Upload failed', true),
+				'isUploadedFile' =>	__d('uploader', 'Upload failed', true),
+				'max' => 			__d('uploader', 'Maximum number of uploads exceeded', true)
+			)
+~~~
+
+
+####element
+You can specify the element to be used to render the upload list...
+
+Default:
+default_element.ctp
+
+(This needds improvement!!!)
 
