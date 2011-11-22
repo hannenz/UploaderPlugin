@@ -197,7 +197,7 @@ public function edit($id = null) {
 			// Check for upload errors
 			if (!empty($this->Item->uploadErrors)){
 
-				// Upload errors occured, give a flash message and re-render the edit view
+				// Upload errors occured, give a flash message
 				$this->Session->setFlash(__('File upload failed'));
 
 				// This one is important!!
