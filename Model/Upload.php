@@ -31,7 +31,7 @@ class Upload extends AppModel {
 
 	var $validate = array(
 		'is_uploaded_file' => array(
-			'isUploaderFile' => array(
+			'isUploadedFile' => array(
 				'rule' => array('comparison', '==', 1),
 				'required' => true
 			)
@@ -474,7 +474,7 @@ class Upload extends AppModel {
 
 /* Validation methods */
 
-	private function validateMaxFileSize($check){
+	function validateMaxFileSize($check){
 		$alias = key($this->data);
 		if (!empty($this->config[$alias]['maxSize']) && $this->config[$alias]['maxSize'] > 0){
 			return ($check['size'] <= $this->config[$alias]['maxSize']);
@@ -482,7 +482,7 @@ class Upload extends AppModel {
 		return (true);
 	}
 
-	private function validateFileType($check){
+	function validateFileType($check){
 		$alias = key($this->data);
 		if (!empty($this->config[$alias]['allow'])){
 			return ($this->isAllowed($check['type'], $this->config[$alias]['allow']));
@@ -490,7 +490,7 @@ class Upload extends AppModel {
 		return (true);
 	}
 
-	private function validateMax($check){
+	function validateMax($check){
 		$alias = key($this->data);
 		if ($this->data[$alias]['foreign_key'] == 0){
 			return (true);
