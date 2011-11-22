@@ -3,6 +3,9 @@
 ?>
 <dl>
 <?php
+
+	echo $this->Html->tag('dt', __d('uploader', 'Pos', true));
+	echo $this->Html->tag('dd', '#'.$upload['pos']);
 	echo $this->Html->tag('dt', __d('uploader', 'Filename', true));
 	echo $this->Html->tag('dd', $upload['name']);
 	echo $this->Html->tag('dt', __d('uploader', 'Size', true));

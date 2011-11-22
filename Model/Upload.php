@@ -36,10 +36,6 @@ define('UPLOADER_ERR_DB', 18);
 class Upload extends AppModel {
 	var $name = 'Upload';
 
-	var $order = array(
-		'Upload.pos' => 'ASC'
-	);
-
 	var $validate = array(
 		'is_uploaded_file' => array(
 			'isUploaderFile' => array(
@@ -70,52 +66,29 @@ class Upload extends AppModel {
 				'rule' => 'validateFileType',
 				'required' => true
 			)
-		),
-		//~ 'model' => array(
-			//~ 'required' => true,
-			//~ 'rule' => 'notEmpty'
-		//~ ),
-		//~ 'alias' => array(
-			//~ 'required' => true,
-			//~ 'rule' => 'notEmpty'
-		//~ )
-	);
-
-	var $default_config = array(
-		'Default' => array(
-			'model' => 'None',
-			'uniquify' => true,
-			'overwrite' => true,
-			'max_filesize' => 0,
-			'allow' => array(),
-			'files' => array(
-				'default' => array(
-					'path' => DEFAULT_DESTINATION,
-					'action' => array(
-						'resize' => 800,
-					)
-				)
-			)
 		)
 	);
 
+/* Callback
+ * Called before an Upload is validated and calls the prepareUpload()
+ * method, which will prepate the data structure to contain
+ * upload relevant data.
+ *
+ * name: beforeValidate
+ * @return boolean
+ * 		Always returns true to proceed to validation
+ */
 	function beforeValidate(){
-		$this->data = $this->prepareUpload($this->data);
-		return (true);
-	}
 
-	function prepareUpload($data, $config = null){
-
-		if ($config === null){
-			$config = $this->config;
-			//return (array());
-		}
-
+		$data = $this->data;
+		$config = $this->config;
 		$alias = key($data);
 
+		// Assure that foreign_key is numeric
 		if (empty($data[$alias]['foreign_key'])){
 			$data[$alias]['foreign_key'] = 0;
 		}
+		// Do we still need this???
 		if (empty($this->data[$alias]['id'])){
 			$data[$alias]['id'] = null;
 		}
@@ -128,24 +101,41 @@ class Upload extends AppModel {
 			}
 		}
 
+		// Get the file's extension
 		$extension = end(explode('.', $data[$alias]['name']));
 
+		// Count existing uploads
+		$uploads = $this->find('all', array(
+			'conditions' => array($alias . '.alias' => $alias, $alias . '.model' => $data[$alias]['model'], $alias . '.foreign_key' => $data[$alias]['foreign_key']),
+			'fields' => array($alias.'.id'),
+			'order' => array($alias.'.pos' => 'ASC')
+		));
+		$nUploads = count($uploads);
+
+		// If we have a 'max=1' configuration, replace the upload, e.g. delete the existing one
+		if (!empty($config[$alias]['max']) && $config[$alias]['max'] == 1 && $nUploads == 1){
+			// mark the existing upload to be deleted after successful new upload
+			$this->deleteMe = $uploads[0][$alias]['id'];
+			$nUploads = 0;
+		}
+
+		// Do validation stuff, setup fields to be checked by the real
+		// validation process etc.
 		$data[$alias]['type'] = $this->getFiletype($data[$alias]['tmp_name'], $extension);
 		$data[$alias]['is_uploaded_file'] = is_uploaded_file($data[$alias]['tmp_name']);
+		$data[$alias]['filename'] = sprintf('%s.%s', $this->uniqueFilename(), $extension);
+		$data[$alias]['write_permissions'] = $wp ? 1 : 0;
+		$data[$alias]['pos'] = $nUploads + 1;
+		$data[$alias]['session_id'] = session_id();
 		if (empty($data[$alias]['title'])){
 			$data[$alias]['title'] = $data[$alias]['name'];
 		}
-		$data[$alias]['filename'] = sprintf('%s.%s', $this->uniqueFilename(), $extension);
-		$data[$alias]['write_permissions'] = $wp ? 1 : 0;
-		$data[$alias]['pos'] = $this->find('count', array('conditions' => array($alias . '.alias' => $alias, $alias . '.model' => $data[$alias]['model'], $alias . '.foreign_key' => $data[$alias]['foreign_key']))) + 1;
-		$data[$alias]['session_id'] = session_id();
 
-
-		return ($data);
+		// Write back the modified data
+		$this->data = $data;
 	}
 
-
-/* Upload files
+/* Callback: Upload the files
  *
  * name: beforeSave
  */
@@ -161,16 +151,48 @@ class Upload extends AppModel {
 		return (false);
 	}
 
+/* Callback: Called after (successful) upload.
+ * Used to delete a replacing upload, which was marked during the
+ * beforeValidate() method
+ *
+ * name: afterSave
+ */
+	function afterSave($created){
 
-/* Delete the upload's files and adjust positions
+		if (!empty($this->deleteMe)){
+			$this->delete($this->deleteMe);
+		}
+	}
+
+
+/* Callback
+ * Delete the upload's files and adjust positions
  *
  * name: beforeDelete
  */
 	function beforeDelete(){
 		$upload = $this->read(null, $this->id);
 		if (!empty($upload)){
+			$alias = key($upload);
+			$uploadAlias = $upload[$alias]['alias'];
+
+			// Remove the upload's file(s)
 			$this->deleteFiles($upload);
-			$this->query("UPDATE uploads SET pos=pos-1 WHERE model='{$upload['Upload']['model']}' AND foreign_key='{$upload['Upload']['foreign_key']}' AND alias='{$upload['Upload']['alias']}' AND pos > {$upload['Upload']['pos']}");
+
+			// Adjust positions; find all uploads of the given record with
+			// higher position and decrease each pos.
+			$uploads = $this->find('all', array(
+				'conditions' => array(
+					$alias.'.model' => $upload[$alias]['model'],
+					$alias.'.alias' => $uploadAlias,
+					$alias.'.foreign_key' => $upload[$alias]['foreign_key'],
+					$alias.'.pos >' => $upload[$alias]['pos']
+				)
+			));
+			foreach ($uploads as $upload){
+				$this->id = $upload[$alias]['id'];
+				$this->saveField('pos', $upload[$alias]['pos'] - 1);
+			}
 		}
 		return (true);
 	}
@@ -178,7 +200,7 @@ class Upload extends AppModel {
 /* Return all pending uploads for the given $model, $alias and $id
  *
  * name: get_pending
- * @param string $model
+ * @param string $model optional
  * 		The name of the model
  * @param string $alias optional
  * 		The nameof the upload alias
@@ -293,77 +315,71 @@ class Upload extends AppModel {
  */
 	function deleteFiles($upload){
 
-		$alias = $upload['Upload']['alias'];
-		$files = $this->config[$alias]['files'];
+		$alias = key($upload);
+		// In case $alias is 'Upload', we need the real alias
+		$uploadAlias = $upload[$alias]['alias'];
 
-		foreach ($files as $file){
-			$delpath = $file['path'] . DS . $upload['Upload']['filename'];
-			@unlink($delpath);
+		$files = $this->config[$uploadAlias]['files'];
+		if (!empty($files) && is_array($files)){
+			foreach ($files as $file){
+				$delpath = $file['path'] . DS . $upload[$alias]['filename'];
+				@unlink($delpath);
+			}
 		}
 	}
 
 /* Uploads one file
+ * Applies any actions to the file and moves it to the
+ * destination path.
  *
  * name: upload
  * @param array $data
  * 		Upload data
- * @param $alias, $model, $id, $foreign_key
- * 		You know...
  *
- * @return
- * 		On successful upload returns an array ready to use as db record ($this->Model->save())
- * 		On failure, returns false, with the error set in $this->error
+ * @return boolean
+ * 		flags success of the operation
  */
 	function uploadOne($data){
 
-		$this->error = null;
+		$config = $this->config[$data['alias']];
 
-		try {
-			if (empty($this->config[$data['alias']])){
-				throw new Exception(UPLOADER_ERR_CONFIG);
-			}
+		foreach ($config['files'] as $file){
+			$path = rtrim($file['path'], '/') . DS;
+			$full_path = $path . $data['filename'];
 
-			$config = $this->config[$data['alias']];
-
-			foreach ($config['files'] as $file){
-				$path = rtrim($file['path'], '/') . DS;
-				$full_path = $path . $data['filename'];
-
-				if (isset($file['action']) && count($file['action']) > 0 && in_array($data['type'], array('image/jpeg', 'image/gif', 'image/png'))){
-					App::import('Component', 'Uploader.Image');
-					$this->Image = new ImageComponent(new ComponentCollection);
-					$this->Image->load($data['tmp_name']);
-					foreach ($file['action'] as $action => $params){
-						if (method_exists($this->Image, $action)){
-							$params = $this->arrayfy($params);
-							switch ($action){
-								case 'scale':
-									$this->Image->scale($params[0]);
-									break;
-								case 'resize':
-									$this->Image->resize($params[0], isset($params[1]) ? $params[1] : null);
-									break;
-								case 'crop':
-									$this->Image->crop(isset($params[0]) ? $params[0] : null, isset($params[1]) ? $params[1] : true);
-									break;
-								default:
-									//ImageComponent::{$action}($params);
-									break;
-							}
+			if (isset($file['action']) && count($file['action']) > 0 && in_array($data['type'], array('image/jpeg', 'image/gif', 'image/png'))){
+				App::import('Component', 'Uploader.Image');
+				$this->Image = new ImageComponent(new ComponentCollection);
+				$this->Image->load($data['tmp_name']);
+				foreach ($file['action'] as $action => $params){
+					if (method_exists($this->Image, $action)){
+						$params = $this->arrayfy($params);
+						switch ($action){
+							case 'scale':
+								$this->Image->scale($params[0]);
+								break;
+							case 'resize':
+								$this->Image->resize($params[0], isset($params[1]) ? $params[1] : null);
+								break;
+							case 'crop':
+								$this->Image->crop(isset($params[0]) ? $params[0] : null, isset($params[1]) ? $params[1] : true);
+								break;
+							default:
+								//ImageComponent::{$action}($params);
+								break;
 						}
 					}
-					$this->Image->save($full_path, null, 75, 0666);
 				}
-				else {
-					if (!move_uploaded_file($data['tmp_name'], $full_path)){
-						throw new Exception(UPLOADER_ERR_ILLEGAL);
-					}
-				}
+				$this->Image->save($full_path, null, 75, 0666);
 			}
-		}
-		catch (Exception $e){
-			$this->error = $e->getMessage();
-			return false;
+			else {
+				// we checked is_uploaded_file and proper write
+				// permissions in beforeValidate already, so
+				// move_uploaded_file() SHOULD return no errors
+				// here...??!
+				@move_uploaded_file($data['tmp_name'], $full_path);
+				chmod($full_path, 0666);
+			}
 		}
 		return true;
 	}
