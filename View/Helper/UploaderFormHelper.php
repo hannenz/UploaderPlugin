@@ -38,11 +38,11 @@ class UploaderFormHelper extends AppHelper {
 			)
 		), $options);
 
-		$Model = 'Item'; // Where can we get this from??
+//		$Model = 'Item'; // Where can we get this from??
 
 		$foreignKey = isset($this->request->params['pass'][0]) ? $this->request->params['pass'][0] : 0;
 		$model = key((array)$this->_View->Helpers->Form->_models);
-		$config = $this->_View->Helpers->Form->_models[$Model]->actsAs['Uploader.Uploadable'][$uploadAlias];
+		$config = $this->_View->Helpers->Form->_models[$model]->actsAs['Uploader.Uploadable'][$uploadAlias];
 
 		if (empty($options['label'])){
 			$options['label'] = Inflector::pluralize($uploadAlias);
