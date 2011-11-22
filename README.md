@@ -1,6 +1,8 @@
 # UploaderPlugin
 
+
 __This is a plugin for CakePHP >= 2.0__ (but could be simply rewritten to work with 1.3 as well)
+
 
 UploaderPlugin is a plugin to be used with the CakePHP framework.
 It allows to manage uploads as "hasMany associated objects" related to any of your models.
