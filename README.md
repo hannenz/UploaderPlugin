@@ -30,7 +30,8 @@ etc. - stay tuned
 In the model(s) which shall "have" uploads, attach the Uploadable behavior:
 
 
-~~~php
+```php
+
 class YourModel extends AppModel {
 
 	public $actsAs = array(
@@ -40,7 +41,7 @@ class YourModel extends AppModel {
 	...
 }
 
-~~~
+```
 
 Settings are very extensive but allow for very flexible configuration of the plugin:
 
