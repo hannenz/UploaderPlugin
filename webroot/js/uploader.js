@@ -157,46 +157,17 @@ $(document).ready(function(){
 
 		function on_finish_one(event, response, name, number, total){
 			var queueItem = container.find('.uploader-queue-item-' + number);
-			queueItem.html(response);
-			return (true);
 
-			var r = $.parseJSON(response);
+			queueItem.addClass('uploader-status-finished').delay(10).fadeOut(function(){$(this).remove(); });
 
-			var cssClass = r.success ? 'uploader-status-success' : 'uploader-status-error';
-			var element = container.find('.uploadElement').val();
-
-			if (r.success){
-				container.find('.uploader-queue-item-' + number).delay(10).fadeOut(function(){ $(this).remove()});
-				container.find('.uploader-list').each(function(){
-					$.get('/uploader/uploads/get_one/' + r.id + '/' + element, function(response){
-						container.find('.upload-' + number)
-							.html($('<input type="checkbox" name="data[Upload][' + r.id + ']" value="1" />' + response))
-							.removeClass('uploader-status-uploading')
-							.addClass('uploader-status-success')
-						;
-					});
-					$(this).siblings('.submit').show();
-				});
-				if (container.find('input[name="data[Upload][id]"]').val() > 0){
-					// If upload succeeded and it was a hasOne upload, then remove the old upload-list item
-					container.find('.uploader-old').remove();
-				}
-			}
-			else {
-				container.find('.upload-' + number).remove();
-				container.find('.uploader-queue-item-' + number).remove();
-				container.find('.uploader-errors').append($('<li>' + r.message + '</li>'));
-
-				/* If hasOne : Restore old list item */
-				container.find('.uploader-old').removeClass('uploader-old').show();
-			}
-
-			container.find('.uploader-progress-progressbar .uploader-progressbar').css('width', ((number + 1) / total * 100).toFixed(2) + '%');
+			var listItem = $('<li><input type="checkbox" />'+response+'</li>');
+			container.find('.uploader-list').append(listItem);
 
 			return (true);
 		}
 
 		function on_finish(){
+			return;
 			container.find('.uploader-progress-filename').html('Done');
 			container.find('.uploader-progress-numbers').html('');
 			container.find('.uploader-progress').delay(3000).fadeOut();

@@ -1,7 +1,7 @@
 <?php
 class UploadsController extends UploaderAppController {
 
-	public $helpers = array('Form', 'Html');
+	public $helpers = array('Form', 'Html', 'Number');
 
 	function edit($id = null){
 		if (!empty($this->data)){
@@ -40,7 +40,7 @@ class UploadsController extends UploaderAppController {
 		if ($this->request->is('ajax')){
 			$this->Upload->create();
 			$data = array(
-				'Upload' => array_merge(array(
+				$uploadAlias => array_merge(array(
 					'model' => $model,
 					'alias' => $uploadAlias,
 					'foreign_key' => $foreignKey,
@@ -52,10 +52,21 @@ class UploadsController extends UploaderAppController {
 					'className' => $model
 				)
 			)));
+			$this->Upload->alias = $uploadAlias;
 			$this->Upload->config = $this->Upload->{$model}->actsAs['Uploader.Uploadable'];
-			$this->Upload->save($data);
+			$this->Upload->unbindModel(array('belongsTo' => array($model)));
+			if ($this->Upload->save($data)){
+				$upload = $this->Upload->read(null, $this->Upload->id);
+				$upload = array_shift($upload);
+				$upload['icon'] = $this->Upload->getIcon($upload);
+				$this->set('upload', $upload);
+				$this->render('/Elements/default_element', 'ajax');
+			}
+			else {
+				debug ($this->Upload->validationErrors);
+				die();
+			}
 		}
-		die();
 	}
 
 	function delete_poster($id){
