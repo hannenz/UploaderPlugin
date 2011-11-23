@@ -143,24 +143,24 @@ class Upload extends AppModel {
 	function beforeSave(){
 
 		$alias = key($this->data);
-		
+
 		if ($alias != 'Upload'){
 
 			$data = $this->data[$alias];
 			$config = $this->config[$data['alias']];
-	
+
 			foreach ($config['files'] as $file){
 				$full_path = WWW_ROOT . DS . trim($file['path'], '/') . DS . $data['filename'];
-	
+
 				if (isset($file['action']) && count($file['action']) > 0 && in_array($data['type'], array('image/jpeg', 'image/gif', 'image/png'))){
 					foreach ($file['action'] as $component => $actionData){
-	
+
 						App::import('Component', 'Uploader.'.$component);
 						$name = $component.'Component';
 						$Component = new $name(new ComponentCollection);
-	
+
 						$Component->load($data['tmp_name']);
-	
+
 						foreach ($actionData as $key => $value){
 							if (is_numeric($key)){
 								$method = $value;
@@ -177,7 +177,7 @@ class Upload extends AppModel {
 								$Component->{$method}($params);
 							}
 						}
-	
+
 						$Component->save($full_path, null, 75, 0666);
 					}
 				}
@@ -278,7 +278,7 @@ class Upload extends AppModel {
 
 		$backAlias = $this->alias;
 		$this->alias = 'Upload';
-		
+
 		$conditions = array(
 			'Upload.session_id' => session_id(),
 			'Upload.foreign_key <=' => 0
@@ -339,6 +339,9 @@ class Upload extends AppModel {
 
 		$icon = false;
 		$alias = $upload['alias'];
+		if (!empty($upload['poster'])){
+			return ($upload['poster']);
+		}
 
 		if (substr($upload['type'], 0, 5) == 'image'){
 			//~ For images search if any path name contains the string
@@ -500,5 +503,53 @@ class Upload extends AppModel {
 		}
 		return (true);
 	}
+
+	function uploadPoster($id, $destination){
+		$destPath = null;
+		if (!empty($_FILES['Poster'])){
+
+			$data = $_FILES['Poster'];
+
+			$destination = trim($destination, DS);
+			if (is_uploaded_file($data['tmp_name'])){
+				$ext = end(explode('.', $data['name']));
+				$type = $this->getFiletype($data['tmp_name'], $ext);
+				if ($this->isAllowed($type, array('image/*'))){
+					$name = $this->uniqueFilename() . '.' . $ext;
+					$destPath = DS . $destination . DS . $name;
+
+					try {
+						App::import('Component', 'Uploader.Image');
+						$Component = new ImageComponent(new ComponentCollection);
+
+						if (!$Component->load($data['tmp_name'])){
+							throw new Exception();
+						}
+						if (!$Component->resize(array('width' => 600))){
+							throw new Exception();
+						}
+						if (!$Component->save(rtrim(WWW_ROOT, DS) . $destPath)){
+							throw new Exception();
+						}
+					}
+					catch (Exception $e){
+						if (!@move_uploaded_file($data['tmp_name'], rtrim(WWW_ROOT, DS) . $destPath)){
+							$destPath = null;
+						}
+					}
+				}
+			}
+		}
+		return ($destPath);
+	}
+
+	function deletePoster($id){
+		$poster = $this->field('poster', array('id' => $id));
+		$path = rtrim(WWW_ROOT, DS) . $poster;
+		@unlink($path);
+		$this->id = $id;
+		$this->saveField('poster', '', array('validate' => false, 'callbacks' => false));
+	}
+
 }
 ?>
