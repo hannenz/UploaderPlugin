@@ -504,6 +504,18 @@ class Upload extends AppModel {
 		return (true);
 	}
 
+/* Upload a poster image
+ * Upload image will be resized
+ *
+ * name: uploadPoster
+ * @param $id integer
+ * 		The upload id to which the poster shall be uploaded
+ * @param $destination
+ * 		The detination path relative to APP/webroot
+ * @return
+ * 		Returns the filename of the poster image relative to
+ * 		APP/webroot or null in case of an error
+ */
 	function uploadPoster($id, $destination){
 		$destPath = null;
 		if (!empty($_FILES['Poster'])){
@@ -543,6 +555,11 @@ class Upload extends AppModel {
 		return ($destPath);
 	}
 
+/* Delete a poster image
+ *
+ * name: deletePoster
+ * @param $id integer 		The id of the upload from which the poster image shall be deleted
+ */
 	function deletePoster($id){
 		$poster = $this->field('poster', array('id' => $id));
 		$path = rtrim(WWW_ROOT, DS) . $poster;
