@@ -85,6 +85,12 @@ class UploaderFormHelper extends AppHelper {
 		}
 
 		$out .= $this->uploadList($uploadAlias);
+		$out .= $this->Html->script(array(
+			'/uploader/js/jquery',
+			'/uploader/js/jquery.form',
+			'/uploader/js/jquery.html5_upload',
+			'/uploader/js/uploader'
+		), array('inline' => false));
 		$out = $this->Html->div(join(' ', $cssClass), $out, array('id' => join('_', array('Uploader', $model, $uploadAlias, $foreignKey))));
 		return $this->output($out);
 	}

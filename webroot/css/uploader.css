@@ -35,3 +35,40 @@
 	background:transparent !important;
 }
 
+
+.uploader-queue {
+	list-style-type:none;
+	font-size:11px;
+	font-family:Verdana, sans;
+}
+
+.uploader-queue li {
+	background:#ccc;
+	color:#666;
+	overflow:hidden;
+	margin:10px 0;
+	padding:6px;
+}
+
+.uploader-queue-perc {
+	width:40px;
+	float:right;
+	text-align:right;
+}
+
+.uploader-queue-progressbar {
+	background:#fff;
+	height:6px;
+	margin:4px 0;
+	padding:0;
+}
+
+.uploader-progressbar {
+	height:6px;
+	background:green;
+	margin:0;
+	padding:0;
+/*
+	width:0%;
+*/
+}

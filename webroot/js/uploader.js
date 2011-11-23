@@ -93,16 +93,21 @@ $(document).ready(function(){
 		return;
 	}
 
-	$('.uploader-progress').hide();
-	$('.uploader-submit-button').remove();
+	$('.input.file.uploader').each(function(){
+		var container = $(this);
 
-	insertSelectAllButton();
+		var a = container.attr('id').split('_');
+		var model = a[1];
+		var uploadAlias = a[2];
+		var foreignKey = a[3];
 
-	$('.uploader-upload-field').each(function(){
-		var container = $(this).parents('.uploader').first();
+		var fileInput = $(this).find('input[type=file]');
+		var form = $(this).parents('form').first();
 
-		$(this).html5_upload({
-			url : '/uploader/uploads/add',
+		fileInput.html5_upload({
+			url : function(){
+				return ('/uploader/uploads/add/'+model+'/'+uploadAlias+'/'+foreignKey);
+			},
 			autostart : true,
 			autoclear : true,
 			sendBoundary : true,
@@ -116,60 +121,30 @@ $(document).ready(function(){
 
 		function on_start(event, total, files){
 
-			// Clear error messages and progress
-			container.find('.uploader-errors').html('');
-			container.find('.uploader-progress > span').html('');
-			container.find('.uploader-progressbar').css('width', '0%');
-			container.find('.uploader-progress').show();
+			var queue = $('<ul />');
+			queue.addClass('uploader-queue');
 
 			/* Add files to queue */
-			container.find('.uploader-queue').each(function(){
-				var queue = $(this);
-				$(files).each(function(n, file){
-					var li = $('<li />');
-					var name = $('<span class="uploader-queue-filename">' + file.fileName + '</span>');
-					var perc = $('<span class="uploader-queue-perc">0.00%</span>');
-					var bar = $('<div class="uploader-queue-progressbar"><div class="uploader-progressbar"></div></div>');
-					li
-						.addClass('uploader-queue-item-' + n)
-						.addClass('uploader-status-uploading')
-						.append(name)
-						.append(perc)
-						.append(bar)
-					;
-					queue.append(li);
-				});
+			$(files).each(function(n, file){
+				console.log(file);
+				var li = $('<li />');
+				var name = $('<span class="uploader-queue-filename">' + file.fileName + '</span>');
+				var perc = $('<span class="uploader-queue-perc">0.00%</span>');
+				var bar = $('<div class="uploader-queue-progressbar"><div class="uploader-progressbar"></div></div>');
+				li
+					.addClass('uploader-queue-item-' + n)
+					.addClass('uploader-status-uploading')
+					.append(name)
+					.append(perc)
+					.append(bar)
+				;
+				queue.append(li);
 			});
+			container.append(queue);
 			return (true);
 		}
 
 		function on_start_one(event, name, number, total){
-
-			/* Add list item to uploader-list */
-			container.find('.uploader-list').each(function(){
-				var li = $('<li />');
-				li
-					.addClass('upload-' + number)
-					.addClass('uploader-status-uploading')
-					.html(name)
-				;
-
-				$(this).append(li);
-
-				/* If it is a "hasOne" upload, mark and hide the old item - if any - in case the upload fails */
-				if (container.find('input[name="data[Upload][id]"]').val() > 0){
-					$(this).find('li').first().addClass('uploader-old').hide();
-				}
-			});
-
-			/* Update queue item */
-			container.find('.uploader-queue .uploader-queue-item-' + number)
-				.removeClass('uploader-status-pending')
-				.addClass('uploader-status-uploading')
-			;
-
-			container.find('.uploader-progress .uploader-progress-filename').html(name);
-			container.find('.uploader-progress .uploader-progress-numbers').html((number + 1) + '/' + total);
 			return (true);
 		}
 
@@ -181,6 +156,10 @@ $(document).ready(function(){
 		}
 
 		function on_finish_one(event, response, name, number, total){
+			var queueItem = container.find('.uploader-queue-item-' + number);
+			queueItem.html(response);
+			return (true);
+
 			var r = $.parseJSON(response);
 
 			var cssClass = r.success ? 'uploader-status-success' : 'uploader-status-error';

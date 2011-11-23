@@ -74,6 +74,7 @@ class Upload extends AppModel {
 		$config = $this->config;
 		$alias = key($data);
 
+
 		// Assure that foreign_key is numeric
 		if (empty($data[$alias]['foreign_key'])){
 			$data[$alias]['foreign_key'] = 0;
