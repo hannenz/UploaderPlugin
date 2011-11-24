@@ -152,37 +152,42 @@ class Upload extends AppModel {
 
 			foreach ($config['files'] as $file){
 				$full_path = WWW_ROOT . DS . trim($file['path'], '/') . DS . $data['filename'];
+				$saved = false;
 
-				if (isset($file['action']) && count($file['action']) > 0 && in_array($data['type'], array('image/jpeg', 'image/gif', 'image/png'))){
+				if (isset($file['action']) && count($file['action']) > 0 /*&& in_array($data['type'], array('image/jpeg', 'image/gif', 'image/png'))*/){
 					foreach ($file['action'] as $component => $actionData){
 
 						App::import('Component', 'Uploader.'.$component);
 						$name = $component.'Component';
 						$Component = new $name(new ComponentCollection);
 
-						$Component->load($data['tmp_name']);
+						$types = $Component->types();
+						if (empty($types) || in_array($data['type'], $Component->types())){
 
-						foreach ($actionData as $key => $value){
-							if (is_numeric($key)){
-								$method = $value;
-								$params = array();
-							}
-							else {
-								$method = $key;
-								$params = $value;
-							}
-							if (method_exists($Component, $method)){
-								if (!is_array($params)){
-									$params = array($params);
+							$Component->load($data['tmp_name']);
+
+							foreach ($actionData as $key => $value){
+								if (is_numeric($key)){
+									$method = $value;
+									$params = array();
 								}
-								$Component->{$method}($params);
+								else {
+									$method = $key;
+									$params = $value;
+								}
+								if (method_exists($Component, $method)){
+									if (!is_array($params)){
+										$params = array($params);
+									}
+									$Component->{$method}($params);
+								}
 							}
-						}
 
-						$Component->save($full_path, null, 75, 0666);
+							$saved = $Component->save($full_path, null, 75, 0666);
+						}
 					}
 				}
-				else {
+				if (!$saved) {
 					// we checked is_uploaded_file and proper write
 					// permissions in beforeValidate already, so
 					// move_uploaded_file() SHOULD return no errors

@@ -163,5 +163,14 @@ class UploadsController extends UploaderAppController {
 			$this->redirect($this->referer());
 		}
 	}
+
+	function reorder(){
+		$data = array_shift($this->data);
+		foreach ($data as $pos => $id){
+			$this->Upload->id = $id;
+			$this->Upload->saveField('pos', $pos + 1);
+		}
+		die();
+	}
 }
 ?>

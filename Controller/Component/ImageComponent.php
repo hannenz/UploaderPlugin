@@ -32,6 +32,10 @@ class ImageComponent extends Component {
 	private $height;
 	private $ratio;
 
+	function types(){
+		return (array('image/jpeg', 'image/gif', 'image/png'));
+	}
+
 /* Load the image that will be used for further processing
  *
  * name: load

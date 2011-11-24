@@ -110,7 +110,7 @@ class UploaderFormHelper extends AppHelper {
 			foreach ($data[$alias] as $upload){
 				$item = $this->_View->element($element, array('upload' => $upload), array('plugin' => 'Uploader'));
 				$checkboxLabel = __d('uploader', 'Delete this upload', true);
-				$list[] = $this->Html->tag('li', $item);
+				$list[] = $this->Html->tag('li', $item, array('id' => join('_', array($upload['model'].'.'.$alias, $upload['id']))));
 			}
 		}
 		$out = '';
