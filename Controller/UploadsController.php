@@ -55,7 +55,7 @@ class UploadsController extends UploaderAppController {
  * @param $foreignKey string
  *
  */
-	function add($model, $uploadAlias, $foreignKey){
+	function add($model, $uploadAlias, $foreignKey, $element = null){
 		if ($this->request->is('ajax')){
 			$this->Upload->create();
 			$data = array(
@@ -80,7 +80,10 @@ class UploadsController extends UploaderAppController {
 				$upload = $this->Upload->extend($upload);
 				//~ $upload['icon'] = $this->Upload->getIcon($upload);
 				$this->set('upload', $upload);
-				$this->render('/Elements/default_element', 'ajax');
+				if (empty($element)){
+					$element = 'default_element';
+				}
+				$this->render('/Elements/'.$element, 'ajax');
 			}
 			else {
 				$this->set(array(

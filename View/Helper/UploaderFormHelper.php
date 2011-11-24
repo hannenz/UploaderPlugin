@@ -35,7 +35,8 @@ class UploaderFormHelper extends AppHelper {
 				'noError' => 		__d('uploader', 'Upload failed', true),
 				'isUploadedFile' =>	__d('uploader', 'Upload failed', true),
 				'max' => 			__d('uploader', 'Maximum number of uploads exceeded', true)
-			)
+			),
+			'element' => 'default_element'
 		), $options);
 
 //		$Model = 'Item'; // Where can we get this from??
@@ -84,7 +85,8 @@ class UploaderFormHelper extends AppHelper {
 			$out .= $this->Html->tag('ul', join('', $list), array('class' => 'uploader errors'));
 		}
 
-		$out .= $this->uploadList($uploadAlias);
+		$out .= $this->Form->input('element', array('value' => $options['element'], 'type' => 'hidden', 'id' => false));
+		$out .= $this->uploadList($uploadAlias, null, $options['element']);
 		$out .= $this->Html->script(array(
 			'/uploader/js/jquery',
 			'/uploader/js/jquery.form',

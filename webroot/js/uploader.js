@@ -18,62 +18,6 @@
 // MA 02110-1301, USA.
 //
 //
-function insertSelectAllButton(){
-	$('.uploader-list.uploader-can-delete').each(function(i, el){
-		var list = $(el);
-		var submit = list.siblings('.submit').first();
-
-
-		var selectAllButton = $('<input type="button" value="Select all" />');
-
-		selectAllButton
-			.click(function(){
-				list.find('input[type=checkbox]').attr('checked', 'checked');
-			})
-			.appendTo(submit)
-		;
-
-		var invertButton = $('<input type="button" value="Invert selection" />');
-		invertButton
-			.click(function(){
-				list.find('input[type=checkbox]').each(function(){
-					if ($(this).attr('checked')){
-						$(this).removeAttr('checked');
-					}
-					else {
-						$(this).attr('checked', 'checked');
-					}
-				});
-			})
-			.appendTo(submit)
-		;
-
-		submit.find('input[type=submit]').click(function(){
-			var message = $('input[name="data[Upload][confirm_message]"]').first().val();
-			var n = $(this).parents('form').find('input:checked').length;
-			var noun;
-			if (n > 0){
-				if (n == 1){
-					noun = $('input[name="data[Upload][singular]"]').first().val();
-				}
-				else {
-					noun = $('input[name="data[Upload][plural]"]').first().val();
-				}
-				message = message.replace('%n_files%', n);
-				message = message.replace('%noun%', noun);
-				return (confirm(message));
-
-			}
-			return (false);
-		});
-
-		if (list.children().length == 0){
-			submit.hide();
-			return;
-		}
-
-	});
-}
 
 // Detects support for this kind of stuff
 //
@@ -100,13 +44,14 @@ $(document).ready(function(){
 		var model = a[1];
 		var uploadAlias = a[2];
 		var foreignKey = a[3];
+		var element = container.find('input[name="data[element]"]').val();
 
 		var fileInput = $(this).find('input[type=file]');
 		var form = $(this).parents('form').first();
 
 		fileInput.html5_upload({
 			url : function(){
-				return ('/uploader/uploads/add/'+model+'/'+uploadAlias+'/'+foreignKey);
+				return ('/uploader/uploads/add/'+model+'/'+uploadAlias+'/'+foreignKey+'/'+element);
 			},
 			autostart : true,
 			autoclear : true,
@@ -126,12 +71,10 @@ $(document).ready(function(){
 
 			/* Add files to queue */
 			$(files).each(function(n, file){
-				var w = (Math.random() * 100).toFixed(2);
-				console.log(file);
 				var li = $('<li />');
 				var name = $('<span class="uploader-queue-filename">' + file.fileName + '</span>');
 				var perc = $('<span class="uploader-queue-perc">0.00%</span>');
-				var bar = $('<div class="uploader-queue-progressbar"><div class="uploader-progressbar" style="width:'+w+'%"></div></div>');
+				var bar = $('<div class="uploader-queue-progressbar"><div class="uploader-progressbar" style="width:0%"></div></div>');
 				li
 					.addClass('uploader-queue-item-' + n)
 					.addClass('uploader-status-uploading')
@@ -152,28 +95,33 @@ $(document).ready(function(){
 		function on_progress(event, progress, name, number, total){
 			var perc = (progress * 100).toFixed(2) + '%';
 			var queueItem = container.find('.uploader-queue-item-' + number);
+
 			queueItem.find('.uploader-queue-perc').html(perc);
 			queueItem.find('.uploader-progressbar').css('width', perc);
 		}
 
 		function on_finish_one(event, response, name, number, total){
 			var queueItem = container.find('.uploader-queue-item-' + number);
-
-			queueItem.addClass('uploader-status-finished').delay(10).fadeOut(function(){$(this).remove(); });
-
 			var listItem = $('<li>'+response+'</li>');
+
+			queueItem.addClass('uploader-status-finished').delay(10).fadeOut(function(){
+				$(this).remove();
+			});
+
 			container.find('.uploader-list').append(listItem);
 			if ($(response).hasClass('error')){
-				listItem.css('cursor', 'pointer').click(function(){$(this).remove(); });
+				listItem.css('cursor', 'pointer').click(function(){
+					$(this).remove();
+				});
 			}
 
 			return (true);
 		}
 
 		function on_finish(){
-			container.find('.uploader-queue').fadeOut(function(){$(this).remove()});
+			container.find('.uploader-queue').fadeOut(function(){
+				$(this).remove()}
+			);
 		}
 	});
-
-
 });
