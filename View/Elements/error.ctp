@@ -1,4 +1,4 @@
-<div>
+<div class="uploader error">
 	<?php
 		$list = '';
 		foreach ($uploadErrors as $err){
@@ -8,7 +8,7 @@
 		}
 
 		$upload = array_shift($upload);
-		echo __d('uploader', 'I tried to upload the %s `%s` but errors occured:', $upload['alias'], $upload['name']);
+		echo __d('uploader', 'Uploading the file `%s` failed:', $upload['name']);
 		echo $this->Html->tag('ul', $list);
 	?>
 </div>

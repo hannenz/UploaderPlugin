@@ -40,7 +40,7 @@ class YourModel extends AppModel {
 	public $actsAs = array(
 		'Uploader.Uploadable' => $settings
 	);
-	
+
 	...
 }
 ?>
@@ -312,25 +312,25 @@ class CustomActionsComponent extends Component {
 		// $this->file = file_get_contents($filename)
 		// or something similar, so you can access the file from within
 		// the actions.
-		
+
 		return ($success);
 	}
-	
+
 	function save($filename){
 		// Save the file to disk
-		
+
 		return ($success);
 	}
-	
+
 	function my_action($options = array()){
 		$options = array_merge(array(
 				'defaultOption1' => defaultValue1
 			),
 			$options
 		);
-		
+
 		// Do superfancy stuff
-		
+
 		return ($success);
 	}
 }
@@ -340,4 +340,12 @@ class CustomActionsComponent extends Component {
 
 Your custom actions are Component methods which take one array argument as options which are passed for each action like specified in the behavior's settings, so they are key/ value pairs. The example above shows how to provide default settings for option key's that are not set.
 For each ComponentName in the behavior's setting the plugin will load the uploaded file _once_ by calling the load method, then call all actions specified inside the component's array and after that saves the file back to its final destination by calling the save() method of the component.
+
+
+###Credits
+
+Uploaderplugin uses the following wonderful third party code and artwork:
+- Mime Type icons taken from [Faenza](http://gnome-look.org/content/show.php/Faenza?content=128143) by Matthieu James
+- [jquery.html5_upload](http://code.google.com/p/jquery-html5-upload/) is the work of Mihail.D
+- And of course the incredibly awesome [CakePHP](http://www.cakephp.org) framework!
 

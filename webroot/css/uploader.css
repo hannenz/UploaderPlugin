@@ -3,6 +3,9 @@
 	font-size:11px;
 	color:#555;
 	line-height:1.2em;
+	overflow:hidden;
+	width:45%;
+	float:left;
 }
 
 .uploader-list li {
@@ -20,14 +23,14 @@
 }
 
 .uploader-list li img {
-	width:32px;
+	width:64px;
 	float:left;
 	margin-right:10px;
 	display:block;
 }
 
 .uploader-list dl {
-	width:400px;
+	width:360px;
 	float:left;
 }
 
@@ -36,18 +39,28 @@
 }
 
 
+.uploader-queue:before {
+	content:'Queue';
+	font-weight:bold;
+	color:#333;
+}
+
 .uploader-queue {
+	width:45%;
+	float:right;
 	list-style-type:none;
 	font-size:11px;
 	font-family:Verdana, sans;
+	border:1px solid #ccc;
+	border-radius:4px;
+	margin:10px 0;
+	padding:10px;
 }
 
 .uploader-queue li {
-	background:#ccc;
 	color:#666;
 	overflow:hidden;
-	margin:10px 0;
-	padding:6px;
+	padding:12px 0;
 }
 
 .uploader-queue-perc {
@@ -65,10 +78,17 @@
 
 .uploader-progressbar {
 	height:6px;
-	background:green;
+	background:#1E90FF;
 	margin:0;
 	padding:0;
-/*
-	width:0%;
-*/
+}
+
+.uploader.error {
+	font-weight:bold;
+}
+
+.uploader.error li {
+	margin:0;
+	border:0;
+	font-weight:normal;
 }

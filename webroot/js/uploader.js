@@ -126,11 +126,12 @@ $(document).ready(function(){
 
 			/* Add files to queue */
 			$(files).each(function(n, file){
+				var w = (Math.random() * 100).toFixed(2);
 				console.log(file);
 				var li = $('<li />');
 				var name = $('<span class="uploader-queue-filename">' + file.fileName + '</span>');
 				var perc = $('<span class="uploader-queue-perc">0.00%</span>');
-				var bar = $('<div class="uploader-queue-progressbar"><div class="uploader-progressbar"></div></div>');
+				var bar = $('<div class="uploader-queue-progressbar"><div class="uploader-progressbar" style="width:'+w+'%"></div></div>');
 				li
 					.addClass('uploader-queue-item-' + n)
 					.addClass('uploader-status-uploading')
@@ -140,7 +141,7 @@ $(document).ready(function(){
 				;
 				queue.append(li);
 			});
-			container.append(queue);
+			queue.insertBefore(container.find('.uploader-list'));
 			return (true);
 		}
 
@@ -151,7 +152,7 @@ $(document).ready(function(){
 		function on_progress(event, progress, name, number, total){
 			var perc = (progress * 100).toFixed(2) + '%';
 			var queueItem = container.find('.uploader-queue-item-' + number);
-			queueItem.find('.uploader-queue-percent').html(perc);
+			queueItem.find('.uploader-queue-perc').html(perc);
 			queueItem.find('.uploader-progressbar').css('width', perc);
 		}
 
@@ -160,17 +161,17 @@ $(document).ready(function(){
 
 			queueItem.addClass('uploader-status-finished').delay(10).fadeOut(function(){$(this).remove(); });
 
-			var listItem = $('<li><input type="checkbox" />'+response+'</li>');
+			var listItem = $('<li>'+response+'</li>');
 			container.find('.uploader-list').append(listItem);
+			if ($(response).hasClass('error')){
+				listItem.css('cursor', 'pointer').click(function(){$(this).remove(); });
+			}
 
 			return (true);
 		}
 
 		function on_finish(){
-			return;
-			container.find('.uploader-progress-filename').html('Done');
-			container.find('.uploader-progress-numbers').html('');
-			container.find('.uploader-progress').delay(3000).fadeOut();
+			container.find('.uploader-queue').fadeOut(function(){$(this).remove()});
 		}
 	});
 
