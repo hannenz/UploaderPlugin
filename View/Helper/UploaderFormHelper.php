@@ -26,6 +26,18 @@ class UploaderFormHelper extends AppHelper {
 
 	public $helpers = array('Html', 'Form', 'Number', 'Text', 'Session');
 
+/* Output a file input element
+ *
+ * name: file
+ * @param $uploadAlias
+ * 		The alias of the upload
+ * @param $options
+ * 		Options:
+ * 			multiple: multiple file upload field
+ * 			list: whether to display a list of uploads
+ * 			element: element used to render the list items
+ * 			error: Array of error messages
+ */
 	function file($uploadAlias, $options = array()){
 		$options = array_merge(array(
 			'multiple' => false,
@@ -34,9 +46,10 @@ class UploaderFormHelper extends AppHelper {
 				'maxSize' => 		__d('uploader', 'The file is too large', true),
 				'noError' => 		__d('uploader', 'Upload failed', true),
 				'isUploadedFile' =>	__d('uploader', 'Upload failed', true),
-				'max' => 			__d('uploader', 'Maximum number of uploads exceeded', true)
+				'max' => 			__d('uploader', 'Maximum number of uploads exceeded', true),
 			),
-			'element' => 'default_element'
+			'element' => 'default_element',
+			'list' => true
 		), $options);
 
 		$foreignKey = isset($this->request->params['pass'][0]) ? $this->request->params['pass'][0] : 0;
@@ -84,7 +97,9 @@ class UploaderFormHelper extends AppHelper {
 		}
 
 		$out .= $this->Form->input('element', array('value' => $options['element'], 'type' => 'hidden', 'class' => 'uploader-element', 'id' => false));
-		$out .= $this->uploadList($uploadAlias, null, $options['element']);
+		if ($options['list']){
+			$out .= $this->uploadList($uploadAlias, null, $options['element']);
+		}
 		$out .= $this->Html->script(array(
 			'/uploader/js/jquery',
 			'/uploader/js/jquery.form',
@@ -96,6 +111,19 @@ class UploaderFormHelper extends AppHelper {
 	}
 
 
+/* Render a list of already uploaded files
+ *
+ * name: uploadList
+ * @param $alias
+ * 		UploadAlias
+ * @param $data optional
+ * 		Array of uploads
+ * @param $element
+ * 		Name of the element to be used as list item.
+ * 		Elements must be in the plugin's element path (APP/Plugin/Uploader/View/Elements/)
+ * @return
+ *
+ */
 	function uploadList($alias, $data = null, $element = null){
 
 		if ($data === null){

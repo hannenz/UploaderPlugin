@@ -1,11 +1,4 @@
 <?php
-	//~ echo $this->Form->input(null, array(
-		//~ 'type' => 'checkbox',
-		//~ 'name' => 'data[UploadsToDelete]['.$upload['id'].']',
-		//~ 'value' => $upload['id'],
-		//~ 'label' => false
-	//~ ));
-
 	echo $this->Form->input(null, array(
 		'type' => 'checkbox',
 		'label' => false,
@@ -18,8 +11,8 @@
 ?>
 <dl>
 <?php
-	echo $this->Html->tag('dt', __d('uploader', 'Pos', true));
-	echo $this->Html->tag('dd', '#'.$upload['pos']);
+	//~ echo $this->Html->tag('dt', __d('uploader', 'Pos', true));
+	//~ echo $this->Html->tag('dd', '#'.$upload['pos']);
 	echo $this->Html->tag('dt', __d('uploader', 'Filename', true));
 	echo $this->Html->tag('dd', $upload['name']);
 	echo $this->Html->tag('dt', __d('uploader', 'Size', true));
