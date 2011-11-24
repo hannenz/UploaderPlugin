@@ -133,6 +133,13 @@ class UploadsController extends UploaderAppController {
  * @param $fileAlias
  * 		fileAlias name for the file to download
  */
+/*
+ *
+ * name: download
+ * @param
+ * @return
+ *
+ */
 	function download($id, $fileAlias = null){
 		$upload = array_shift($this->Upload->read(null, $id));
 		$model = $upload['model'];
@@ -164,13 +171,23 @@ class UploadsController extends UploaderAppController {
 		}
 	}
 
+/* Reorders the uploads according to an ajax call from a jQuery UI sortable.
+ *
+ * name: reorder
+ *
+ */
 	function reorder(){
-		$data = array_shift($this->data);
-		foreach ($data as $pos => $id){
-			$this->Upload->id = $id;
-			$this->Upload->saveField('pos', $pos + 1);
+		if ($this->request->is('ajax')){
+			$data = array_shift($this->data);
+			foreach ($data as $pos => $id){
+				$this->Upload->id = $id;
+				$this->Upload->saveField('pos', $pos + 1);
+			}
+			die();
 		}
-		die();
+		else {
+			$this->redirect($this->referer());
+		}
 	}
 }
 ?>

@@ -584,6 +584,16 @@ class Upload extends AppModel {
 		$this->saveField('poster', '', array('validate' => false, 'callbacks' => false));
 	}
 
+/* Adds upload specific information to the upload's data array
+ *
+ * Extends data by file paths and icon path
+ *
+ * name: extend
+ * @param $upload array
+ * 		The upload data
+ * @return array
+ * 		Extended data
+ */
 	function extend($upload){
 		$upload['files'] = array();
 		$uploadAlias = $upload['alias'];
