@@ -63,7 +63,7 @@ class UploadableBehavior extends ModelBehavior {
 							$uploadAlias . '.model' => $Model->name
 						),
 						'dependent' => false,
-						'order' => array($uploadAlias . '.pos' => 'ASC')
+						'order' => array($uploadAlias . '.pos' => 'ASC'),
 					)
 				)
 			), false);
@@ -225,6 +225,12 @@ class UploadableBehavior extends ModelBehavior {
 		return ($n);
 	}
 
+/* Gets all pending uploads for the current model
+ *
+ * name: getPendingUploads
+ * @return
+ * 		array of pending uploads, ready to use from your Model's controller
+ */
 	function getPendingUploads($Model){
 		$pending = array();
 		foreach ($this->settings[$Model->alias] as $uploadAlias => $data){

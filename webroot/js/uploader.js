@@ -118,7 +118,14 @@ $(document).ready(function(){
 				})
 			;
 
-			container.find('.uploader-list').append(listItem);
+			var list = container.find('.uploader-list');
+			if (list.hasClass('uploader-replace') && !$(response).hasClass('error')){
+				list.find('li:first').replaceWith(listItem);
+			}
+			else {
+				list.append(listItem);
+			}
+
 			if ($(response).hasClass('error')){
 				listItem.css('cursor', 'pointer').click(function(){
 					$(this).remove();

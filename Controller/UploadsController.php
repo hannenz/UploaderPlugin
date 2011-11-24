@@ -78,7 +78,6 @@ class UploadsController extends UploaderAppController {
 				$upload = $this->Upload->read(null, $this->Upload->id);
 				$upload = array_shift($upload);
 				$upload = $this->Upload->extend($upload);
-				//~ $upload['icon'] = $this->Upload->getIcon($upload);
 				$this->set('upload', $upload);
 				if (empty($element)){
 					$element = 'default_element';

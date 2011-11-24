@@ -203,10 +203,15 @@ class Upload extends AppModel {
  * name: afterSave
  */
 	function afterSave($created){
+		// Backup the current Id (important!)
+		$backId = $this->id;
+
 		if (!empty($this->deleteMe)){
 			$this->delete($this->deleteMe);
 			unset ($this->deleteMe);
 		}
+
+		$this->id = $backId;
 	}
 
 
@@ -281,7 +286,7 @@ class Upload extends AppModel {
 		$this->alias = 'Upload';
 
 		$conditions = array(
-			'Upload.session_id' => session_id(),
+//			'Upload.session_id' => session_id(),
 			'Upload.foreign_key <=' => 0
 		);
 

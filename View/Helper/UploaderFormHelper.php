@@ -39,11 +39,9 @@ class UploaderFormHelper extends AppHelper {
 			'element' => 'default_element'
 		), $options);
 
-//		$Model = 'Item'; // Where can we get this from??
-
 		$foreignKey = isset($this->request->params['pass'][0]) ? $this->request->params['pass'][0] : 0;
 		$model = key((array)$this->_View->Helpers->Form->_models);
-		$config = $this->_View->Helpers->Form->_models[$model]->actsAs['Uploader.Uploadable'][$uploadAlias];
+		$this->config = $this->_View->Helpers->Form->_models[$model]->actsAs['Uploader.Uploadable'][$uploadAlias];
 
 		if (empty($options['label'])){
 			$options['label'] = Inflector::pluralize($uploadAlias);
@@ -117,7 +115,11 @@ class UploaderFormHelper extends AppHelper {
 		}
 		$out = '';
 		$out .= $this->Html->css('/uploader/css/uploader.css', null, array('inline' => false));
-		$out .= $this->Html->tag('ul', join('', $list), array('class' => 'uploader-list '. $alias));
+		$cssClass = array('uploader-list', $alias);
+		if ($this->config['max'] == 1){
+			$cssClass[] = 'uploader-replace';
+		}
+		$out .= $this->Html->tag('ul', join('', $list), array('class' => join(' ', $cssClass)));
 		return ($this->output($out));
 	}
 }
