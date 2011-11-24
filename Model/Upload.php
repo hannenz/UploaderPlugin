@@ -569,5 +569,17 @@ class Upload extends AppModel {
 		$this->saveField('poster', '', array('validate' => false, 'callbacks' => false));
 	}
 
+	function extend($upload){
+		$upload['files'] = array();
+		$uploadAlias = $upload['alias'];
+
+		foreach ($this->config[$uploadAlias]['files'] as $fileAlias => $fileData){
+			$upload['files'][$fileAlias] = DS . trim($fileData['path'], DS) . DS . $upload['filename'];
+		}
+
+		$upload['icon'] = $this->getIcon($upload);
+		return ($upload);
+	}
+
 }
 ?>

@@ -12,6 +12,6 @@
 	echo $this->Html->tag('dt', __d('uploader', 'Type', true));
 	echo $this->Html->tag('dd', $upload['type']);
 	echo $this->Html->tag('dt', __d('uploader', 'Actions', true));
-	echo $this->Html->tag('dd', join(' | ', array($this->Html->link(__d('uploader', 'edit', true), '/uploader/uploads/edit/' . $upload['id']), $this->Html->link(__d('uploader', 'delete', true), '/uploader/uploads/delete/' . $upload['id']))));
+	echo $this->Html->tag('dd', join(' | ', array($this->Html->link(__d('uploader', 'edit', true), '/uploader/uploads/edit/' . $upload['id']), $this->Html->link(__d('uploader', 'delete', true), '/uploader/uploads/delete/' . $upload['id'], array(), __d('uploader', 'Are you sure?')))));
 ?>
 </dl>

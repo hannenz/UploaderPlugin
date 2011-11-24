@@ -22,21 +22,21 @@
  * File: /app/plugins/uploader/models/behaviors/uploadable.php
  *
  * Uploader Plugin: Uploadable behavior
- * This class extends your model's class as it adds the necessary 
+ * This class extends your model's class as it adds the necessary
  * associations and callbacks for behaving according to the Uploader
  * plugin.
  *
  */
- 
- 
+
+
 class UploadableBehavior extends ModelBehavior {
 
 /* Initialize the behavior
- * 
+ *
  * Stores the behaviors settings and binds each uploadAlias
  * as a hasMany association to the model the behavior is attached to.
  * Loads an instance of the Upload model
- * 
+ *
  * name: setup
  */
 	function setup(Model $Model, $settings){
@@ -77,16 +77,16 @@ class UploadableBehavior extends ModelBehavior {
  * Normalizes input data to contain one array of file data regardless
  * if the file input was a "multiple" or not; then calls the
  * Upload model's save method for each data set to save the upload.
- * 
+ *
  * Errors during upload operation are stored in the model's $uploadErrors
  * property
- * 
+ *
  * If an upload has been taken place, the model's property $wasUploading
  * is set to true
- * 
+ *
  * If a deletion has taken place, the model's property $wasDeleting is set
  * to true
- * 
+ *
  * name: beforeSave
  */
 	function beforeSave($Model){
@@ -199,7 +199,7 @@ class UploadableBehavior extends ModelBehavior {
 /* Callback
  * Extends the data for each upload contained by the record by
  * fileAlias data and icon path.
- * 
+ *
  * name: afterFind
  */
 	function afterFind($Model, $results, $primary = false){
@@ -208,11 +208,7 @@ class UploadableBehavior extends ModelBehavior {
 				foreach ($this->settings[$Model->alias] as $uploadAlias => $setting){
 					if (isset($result[$uploadAlias])){
 						foreach ($result[$uploadAlias] as $m => $data){
-							$results[$n][$uploadAlias][$m]['files'] = array();
-							foreach ($setting['files'] as $name => $path){
-								$results[$n][$uploadAlias][$m]['files'][$name] = DS .trim($path['path'], '/') . DS . $data['filename'];
-							}
-							$results[$n][$uploadAlias][$m]['icon'] = $this->Upload->getIcon($data);
+							$results[$n][$uploadAlias][$m] = $this->Upload->extend($data);
 						}
 					}
 				}

@@ -3,6 +3,11 @@ class UploadsController extends UploaderAppController {
 
 	public $helpers = array('Form', 'Html', 'Number');
 
+/* Edit an upload
+ *
+ * name: edit
+ * @param $id integer optional
+ */
 	function edit($id = null){
 		if (!empty($this->data)){
 			$mssg = array();
@@ -36,7 +41,21 @@ class UploadsController extends UploaderAppController {
 		$this->request->data = $this->Upload->read(null, $id);
 	}
 
-	function add($model = null, $uploadAlias = null, $foreignKey = null){
+/* Adding an upload via Ajax
+ * This method may only be called by AJAX.
+ * Uploads the file and assigns it to the record specified by
+ * $model, $uploadAlias and $foreignKey, then renders a list item through
+ * the element APP/Plugin/Uploader/Views/Elements/default_element.ctp
+ * for the new upload and returns it. In case of an error, the element
+ * APP/Plugin/Uploader/Views/Elements/error.ctp is rendered
+ *
+ * name: add
+ * @param $model string
+ * @param $uploadAlias string
+ * @param $foreignKey string
+ *
+ */
+	function add($model, $uploadAlias, $foreignKey){
 		if ($this->request->is('ajax')){
 			$this->Upload->create();
 			$data = array(
@@ -58,22 +77,42 @@ class UploadsController extends UploaderAppController {
 			if ($this->Upload->save($data)){
 				$upload = $this->Upload->read(null, $this->Upload->id);
 				$upload = array_shift($upload);
-				$upload['icon'] = $this->Upload->getIcon($upload);
+				$upload = $this->Upload->extend($upload);
+				//~ $upload['icon'] = $this->Upload->getIcon($upload);
 				$this->set('upload', $upload);
 				$this->render('/Elements/default_element', 'ajax');
 			}
 			else {
-				debug ($this->Upload->validationErrors);
-				die();
+				$this->set(array(
+					'uploadErrors' => $this->Upload->validationErrors,
+					'upload' => $data,
+					'error' => array(
+						'maxSize' => __d('uploader', 'The file is too large'),
+						'fileType' => __d('uploader', 'Invalid filetype'),
+						'max' => __d('uploader', 'Exceeded maximum number of uploads for this item')
+					)
+				));
+
+				$this->render('/Elements/error', 'ajax');
 			}
 		}
 	}
 
+/* Deletes the poster for the upload with the specified id
+ *
+ * name: delete_poster
+ * @param $id integer
+ */
 	function delete_poster($id){
 		$this->Upload->deletePoster($id);
 		$this->redirect($this->referer());
 	}
 
+/* Delete an upload
+ *
+ * name: delete
+ * @param $id integer
+ */
 	function delete($id){
 		if ($this->Upload->delete($id)){
 			$this->Session->setFlash(__d('uploader', 'Upload has been deleted', true));
