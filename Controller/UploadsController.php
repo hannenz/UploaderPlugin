@@ -125,8 +125,15 @@ class UploadsController extends UploaderAppController {
 		$this->redirect($this->referer());
 	}
 
+/* Provides a download for the specified upload file
+ *
+ * name: unbekannt
+ * @param $id
+ * 		id of the upload
+ * @param $fileAlias
+ * 		fileAlias name for the file to download
+ */
 	function download($id, $fileAlias = null){
-
 		$upload = array_shift($this->Upload->read(null, $id));
 		$model = $upload['model'];
 		$alias = $upload['alias'];
@@ -142,10 +149,19 @@ class UploadsController extends UploaderAppController {
 
 		$upload = $this->Upload->extend($upload);
 
-		$this->response->type($upload['type']);
-		$this->response->download($upload['name']);
-		$this->response->body(file_get_contents(WWW_ROOT . $upload['files'][$fileAlias]));
-		$this->response->send();
+		if (!empty($upload['files']) && is_array($upload['files'])){
+			if ($fileAlias === null || !isset($upload['files'][$fileAlias])){
+				$fileAlias = key($upload['files']);
+			}
+
+			$this->response->type($upload['type']);
+			$this->response->download($upload['name']);
+			$this->response->body(file_get_contents(WWW_ROOT . $upload['files'][$fileAlias]));
+			$this->response->send();
+		}
+		else {
+			$this->redirect($this->referer());
+		}
 	}
 }
 ?>
