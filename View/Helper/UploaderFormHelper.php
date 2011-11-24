@@ -85,7 +85,7 @@ class UploaderFormHelper extends AppHelper {
 			$out .= $this->Html->tag('ul', join('', $list), array('class' => 'uploader errors'));
 		}
 
-		$out .= $this->Form->input('element', array('value' => $options['element'], 'type' => 'hidden', 'id' => false));
+		$out .= $this->Form->input('element', array('value' => $options['element'], 'type' => 'hidden', 'class' => 'uploader-element', 'id' => false));
 		$out .= $this->uploadList($uploadAlias, null, $options['element']);
 		$out .= $this->Html->script(array(
 			'/uploader/js/jquery',

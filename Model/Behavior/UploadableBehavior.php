@@ -84,25 +84,12 @@ class UploadableBehavior extends ModelBehavior {
  * If an upload has been taken place, the model's property $wasUploading
  * is set to true
  *
- * If a deletion has taken place, the model's property $wasDeleting is set
- * to true
- *
  * name: beforeSave
  */
 	function beforeSave($Model){
 
 		$Model->uploadErrors = null;
 		$Model->wasUploading = false;
-		$Model->wasDeleting = false;
-
-		if (!empty($Model->data['UploadsToDelete'])){
-			foreach ($Model->data['UploadsToDelete'] as $id => $delete){
-				if ($delete > 0){
-					$Model->wasDeleting = true;
-					$this->Upload->delete($id);
-				}
-			}
-		}
 
 		if (empty($_FILES)){
 			return (true);
@@ -216,6 +203,34 @@ class UploadableBehavior extends ModelBehavior {
 			}
 		}
 		return ($results);
+	}
+
+/* Deletes a number of uploads
+ *
+ * name: deleteUploads
+ * @param $Model
+ * 		unused
+ * @param $uploads array
+ * 		array of upload ids to delete
+ * @return
+ * 		number of deletions
+ */
+	function deleteUploads($Model, $uploads){
+		$n = 0;
+		foreach ($uploads as $id){
+			if ($this->Upload->delete($id)){
+				$n++;
+			}
+		}
+		return ($n);
+	}
+
+	function getPendingUploads($Model){
+		$pending = array();
+		foreach ($this->settings[$Model->alias] as $uploadAlias => $data){
+			$pending[$uploadAlias] = $this->Upload->getPending($Model->alias, $uploadAlias);
+		}
+		return ($pending);
 	}
 
 }

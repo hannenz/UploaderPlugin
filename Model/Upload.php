@@ -293,7 +293,12 @@ class Upload extends AppModel {
 		}
 		$pending = $this->find('all', array('conditions' => $conditions));
 		$this->alias = $backAlias;
-		return ($pending);
+
+		$r = array();
+		foreach ($pending as $p){
+			$r[] = $this->extend(array_shift($p));
+		}
+		return ($r);
 	}
 
 /* Saves all pending uploads by assiging them to the record specified by
@@ -318,7 +323,7 @@ class Upload extends AppModel {
 	function savePending($id, $model = null, $alias = null){
 		$pending_uploads = $this->getPending($model, $alias);
 		foreach ($pending_uploads as $upload){
-			$this->id = $upload['Upload']['id'];
+			$this->id = $upload['id'];
 			$this->saveField('foreign_key', $id, array('validate' => false, 'callbacks' => false));
 		}
 	}

@@ -1,10 +1,19 @@
 <?php
+	//~ echo $this->Form->input(null, array(
+		//~ 'type' => 'checkbox',
+		//~ 'name' => 'data[UploadsToDelete]['.$upload['id'].']',
+		//~ 'value' => $upload['id'],
+		//~ 'label' => false
+	//~ ));
+
 	echo $this->Form->input(null, array(
 		'type' => 'checkbox',
-		'name' => 'data[UploadsToDelete]['.$upload['id'].']',
+		'label' => false,
 		'value' => $upload['id'],
-		'label' => false
+		'name' => 'uploadsToDelete[]',
+		'hiddenField' => false
 	));
+
 	echo $this->Html->image($upload['icon']);
 ?>
 <dl>

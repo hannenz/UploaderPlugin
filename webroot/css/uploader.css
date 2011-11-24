@@ -92,3 +92,13 @@
 	border:0;
 	font-weight:normal;
 }
+
+.uploader-status-pending {
+	opacity:0.5;
+}
+.uploader-status-uploading {
+/*	opacity:1;*/
+}
+.uploader-status-finished {
+	font-weight:bold;
+}

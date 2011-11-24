@@ -44,7 +44,8 @@ $(document).ready(function(){
 		var model = a[1];
 		var uploadAlias = a[2];
 		var foreignKey = a[3];
-		var element = container.find('input[name="data[element]"]').val();
+		console.log('foreignKey='+foreignKey);
+		var element = container.find('input.uploader-element').val();
 
 		var fileInput = $(this).find('input[type=file]');
 		var form = $(this).parents('form').first();
@@ -77,7 +78,7 @@ $(document).ready(function(){
 				var bar = $('<div class="uploader-queue-progressbar"><div class="uploader-progressbar" style="width:0%"></div></div>');
 				li
 					.addClass('uploader-queue-item-' + n)
-					.addClass('uploader-status-uploading')
+					.addClass('uploader-status-pending')
 					.append(name)
 					.append(perc)
 					.append(bar)
@@ -96,6 +97,10 @@ $(document).ready(function(){
 			var perc = (progress * 100).toFixed(2) + '%';
 			var queueItem = container.find('.uploader-queue-item-' + number);
 
+			queueItem
+				.removeClass('uploader-status-pending')
+				.addClass('uploader-status-uploading')
+			;
 			queueItem.find('.uploader-queue-perc').html(perc);
 			queueItem.find('.uploader-progressbar').css('width', perc);
 		}
@@ -104,9 +109,14 @@ $(document).ready(function(){
 			var queueItem = container.find('.uploader-queue-item-' + number);
 			var listItem = $('<li>'+response+'</li>');
 
-			queueItem.addClass('uploader-status-finished').delay(10).fadeOut(function(){
-				$(this).remove();
-			});
+			queueItem
+				.removeClass('uploader-status-uploading')
+				.addClass('uploader-status-finished')
+				.delay(3000)
+				.fadeOut(function(){
+					$(this).remove();
+				})
+			;
 
 			container.find('.uploader-list').append(listItem);
 			if ($(response).hasClass('error')){
