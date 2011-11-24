@@ -16,9 +16,7 @@ Multiple uploads are supported (as long as the browser supports them).
 
 The UploadsController allows to edit uploads (e.g. rename, add title and description, manually set mime type etc.), delete them and of course display them.
 
-This is the base version of the plugin. The plan is to improve it by
-enhancing it via Javascript to provide ajax-like uploads with progress
-etc. - stay tuned
+Upload form fields are progressively enhanced by JQuery providing AJAX-style seamless uploading, displaying an upload queue and progress on each file.
 
 ## Installation
 
