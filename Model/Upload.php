@@ -26,7 +26,6 @@
 class Upload extends AppModel {
 	var $name = 'Upload';
 
-
 	/* Validation rules */
 
 	var $validate = array(
@@ -73,7 +72,6 @@ class Upload extends AppModel {
 		$data = $this->data;
 		$config = $this->config;
 		$alias = key($data);
-
 
 		// Assure that foreign_key is numeric
 		if (empty($data[$alias]['foreign_key'])){
@@ -605,6 +603,5 @@ class Upload extends AppModel {
 		$upload['icon'] = $this->getIcon($upload);
 		return ($upload);
 	}
-
 }
 ?>

@@ -19,7 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  *
- * File: /app/plugins/uploader/models/behaviors/uploadable.php
+ * File: /Plugin/Uploader/Model/Behavior/UploadableBehavior.php
  *
  * Uploader Plugin: Uploadable behavior
  * This class extends your model's class as it adds the necessary

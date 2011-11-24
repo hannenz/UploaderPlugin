@@ -1,3 +1,4 @@
+
 CREATE TABLE `uploads` (
    `id` int(11) not null auto_increment,
    `created` datetime,

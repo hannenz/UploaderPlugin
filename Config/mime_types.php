@@ -1,5 +1,5 @@
 <?php
- $config = array(
+$config = array(
 	'MimeTypes' => array(
 		'323'	=> 'text/h323',
 		'acx'	=> 'application/internet-property-stream',
