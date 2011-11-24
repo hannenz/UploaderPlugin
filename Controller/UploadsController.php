@@ -124,5 +124,28 @@ class UploadsController extends UploaderAppController {
 		}
 		$this->redirect($this->referer());
 	}
+
+	function download($id, $fileAlias = null){
+
+		$upload = array_shift($this->Upload->read(null, $id));
+		$model = $upload['model'];
+		$alias = $upload['alias'];
+
+		$this->Upload->bindModel(array('belongsTo' => array(
+			$model => array(
+				'className' => $model
+			)
+		)));
+		$this->Upload->alias = $alias;
+		$this->Upload->config = $this->Upload->{$model}->actsAs['Uploader.Uploadable'];
+		$this->Upload->unbindModel(array('belongsTo' => array($model)));
+
+		$upload = $this->Upload->extend($upload);
+
+		$this->response->type($upload['type']);
+		$this->response->download($upload['name']);
+		$this->response->body(file_get_contents(WWW_ROOT . $upload['files'][$fileAlias]));
+		$this->response->send();
+	}
 }
 ?>
