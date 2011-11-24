@@ -44,7 +44,6 @@ $(document).ready(function(){
 		var model = a[1];
 		var uploadAlias = a[2];
 		var foreignKey = a[3];
-		console.log('foreignKey='+foreignKey);
 		var element = container.find('input.uploader-element').val();
 
 		var fileInput = $(this).find('input[type=file]');
