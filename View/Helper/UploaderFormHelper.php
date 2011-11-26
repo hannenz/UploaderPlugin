@@ -26,6 +26,8 @@ class UploaderFormHelper extends AppHelper {
 
 	public $helpers = array('Html', 'Form', 'Number', 'Text', 'Session');
 
+	public $config;
+
 /* Output a file input element
  *
  * name: file
@@ -52,17 +54,20 @@ class UploaderFormHelper extends AppHelper {
 			'list' => true
 		), $options);
 
-		$foreignKey = isset($this->request->params['pass'][0]) ? $this->request->params['pass'][0] : 0;
-		$model = key((array)$this->_View->Helpers->Form->_models);
-		$this->config = $this->_View->Helpers->Form->_models[$model]->actsAs['Uploader.Uploadable'][$uploadAlias];
+		// Read Uploader configuration
+		$this->config = Configure::read('Uploader.settings.'.$uploadAlias);
 
+		// Read the foreign key from request data
+		$model = key((array)$this->_View->Helpers->Form->_models);
+
+		$foreignKey = isset($this->request->data[$model]['id']) ? $this->request->data[$model]['id'] : 0;
+
+		// Generate label text
 		if (empty($options['label'])){
 			$options['label'] = Inflector::pluralize($uploadAlias);
 		}
-		$uploadErrors = (isset($this->_View->viewVars['uploadErrors']))
-			? $this->_View->viewVars['uploadErrors']
-			: array()
-		;
+
+		$uploadErrors = $this->_View->Helpers->Form->_models[$model]->uploadErrors;
 
 		$out = '';
 		$cssClass = array('input', 'file', 'uploader');

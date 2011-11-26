@@ -118,7 +118,7 @@ $(document).ready(function(){
 			;
 
 			var list = container.find('.uploader-list');
-			if (list.hasClass('uploader-replace') && !$(response).hasClass('error')){
+			if (list.hasClass('uploader-replace') && !$(response).hasClass('error') && list.children().length > 0){
 				list.find('li:first').replaceWith(listItem);
 			}
 			else {

@@ -61,6 +61,14 @@ class Upload extends AppModel {
 		)
 	);
 
+	public $config;
+
+
+	function __construct($id = false, $table = null, $ds = null){
+		parent::__construct($id = false, $table = null, $ds = null);
+		$this->config = Configure::read('Uploader.settings');
+	}
+
 /* Callback
  * Called before an Upload is validated and prepares the data structure
  * to contain upload relevant data.
@@ -70,7 +78,6 @@ class Upload extends AppModel {
 	function beforeValidate(){
 
 		$data = $this->data;
-		$config = $this->config;
 		$alias = key($data);
 
 		// Assure that foreign_key is numeric
@@ -84,7 +91,7 @@ class Upload extends AppModel {
 
 		// Check existence of destination dir and write permissions
 		$wp = true;
-		foreach ($config[$alias]['files'] as $name => $path){
+		foreach ($this->config[$alias]['files'] as $name => $path){
 			if (!is_dir($path['path']) || !is_writable($path['path'])){
 				$wp = false;
 			}
@@ -106,7 +113,7 @@ class Upload extends AppModel {
 		$nUploads = count($uploads);
 
 		// If we have a 'max=1' configuration, replace the upload, e.g. delete the existing one
-		if (!empty($config[$alias]['max']) && $config[$alias]['max'] == 1 && $nUploads == 1){
+		if (!empty($this->config[$alias]['max']) && $this->config[$alias]['max'] == 1 && $nUploads == 1){
 			// mark the existing upload to be deleted after successful new upload
 			$this->deleteMe = $uploads[0][$alias]['id'];
 			$nUploads = 0;

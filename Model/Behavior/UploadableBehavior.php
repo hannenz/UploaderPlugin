@@ -46,6 +46,7 @@ class UploadableBehavior extends ModelBehavior {
 			);
 		}
 		$this->settings[$Model->alias] = array_merge($this->settings[$Model->alias], (array)$settings);
+		Configure::write('Uploader.settings', $settings);
 
 		foreach ($this->settings[$Model->alias] as $uploadAlias => $data){
 			$this->settings[$Model->alias][$uploadAlias]['model'] = $Model->alias;
@@ -71,6 +72,7 @@ class UploadableBehavior extends ModelBehavior {
 		App::uses('Upload', 'Uploader.Model');
 		$this->Upload = new Upload();
 		$this->Upload->config = $this->settings[$Model->alias];
+		$Model->uploadErrors = null;
 	}
 
 /* Callback
