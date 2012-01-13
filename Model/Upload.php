@@ -270,6 +270,8 @@ class Upload extends AppModel {
 		// In case $alias is 'Upload', we need the real alias
 		$uploadAlias = $upload[$alias]['alias'];
 
+//		debug ($this->config); die();
+
 		$files = $this->config[$uploadAlias]['files'];
 		if (!empty($files) && is_array($files)){
 			foreach ($files as $file){
