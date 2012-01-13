@@ -28,6 +28,7 @@ class Upload extends AppModel {
 
 	/* Validation rules */
 
+
 	var $validate = array(
 		'is_uploaded_file' => array(
 			'isUploadedFile' => array(

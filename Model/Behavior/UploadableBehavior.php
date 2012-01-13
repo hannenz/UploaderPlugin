@@ -40,6 +40,7 @@ class UploadableBehavior extends ModelBehavior {
  * name: setup
  */
 	function setup(Model $Model, $settings){
+	
 		if (!isset($this->settings[$Model->alias])){
 			$this->settings[$Model->alias] = array(
 				// Default setting
@@ -240,5 +241,4 @@ class UploadableBehavior extends ModelBehavior {
 		}
 		return ($pending);
 	}
-
 }
