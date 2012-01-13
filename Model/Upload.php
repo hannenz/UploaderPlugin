@@ -470,6 +470,9 @@ class Upload extends AppModel {
  * @return boolean
  */
 	private function isAllowed($mime_type, $allow){
+		if (!is_array($allow)){
+			$allow = array($allow);
+		}
 		if (($ret = empty($allow)) === false){
 			foreach ($allow as $item){
 				$pattern = sprintf('%%^%s$%%', str_replace('*', '.*', trim($item)));

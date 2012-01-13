@@ -40,21 +40,30 @@ class UploadableBehavior extends ModelBehavior {
  * name: setup
  */
 	function setup(Model $Model, $settings){
-	
+
 		if (!isset($this->settings[$Model->alias])){
 			$this->settings[$Model->alias] = array(
 				// Default setting
 			);
 		}
 		$this->settings[$Model->alias] = array_merge($this->settings[$Model->alias], (array)$settings);
-		Configure::write('Uploader.settings', $settings);
+
+		// Store the settings so that Upload Model can find it
+
+		$s = Configure::read('Uploader.settings');
+		if (empty($s)){
+			$s = array();
+		}
+
+		Configure::write('Uploader.settings', array_merge($s, $settings));
 
 		foreach ($this->settings[$Model->alias] as $uploadAlias => $data){
 			$this->settings[$Model->alias][$uploadAlias]['model'] = $Model->alias;
-			$type = (isset($this->settings[$Model->alias][$uploadAlias]['max']) && $this->settings[$Model->alias][$uploadAlias]['max'] == 1)
-				? 'hasMany'
-				: 'hasMany'
-			;
+			//~ $type = (isset($this->settings[$Model->alias][$uploadAlias]['max']) && $this->settings[$Model->alias][$uploadAlias]['max'] == 1)
+				//~ ? 'hasMany'
+				//~ : 'hasOne'
+			//~ ;
+			$type = 'hasMany';
 			$Model->bindModel(array(
 				$type => array(
 					$uploadAlias => array(
@@ -72,7 +81,7 @@ class UploadableBehavior extends ModelBehavior {
 		}
 		App::uses('Upload', 'Uploader.Model');
 		$this->Upload = new Upload();
-		$this->Upload->config = $this->settings[$Model->alias];
+		$this->Upload->config = $s; //$this->settings[$Model->alias];
 		$Model->uploadErrors = null;
 	}
 
@@ -205,6 +214,7 @@ class UploadableBehavior extends ModelBehavior {
 
 			}
 		}
+
 		return ($results);
 	}
 
