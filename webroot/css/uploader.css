@@ -1,10 +1,28 @@
+
+/* This should go into the website's main style, not here!!! */
 div.input.file.uploader {
-	width:40%;
+	width:30%;
 	float:left;
 	clear:none;
-	margin-right:5%;
-
+	margin-right:2%;
 }
+/* End */
+
+div.input.file.uploader input {
+	width:100%;
+	margin:0;
+	padding:0;
+	font-size:14px;
+}
+
+div.input.file.uploader label {
+	display:block;
+	height:28px;
+	line-height:28px;
+	background:url('/uploader/img/uploader.png')no-repeat 0 50%;
+	padding-left:50px;
+}
+
 
 .uploader-list {
 	font-family:Verdana, sans;

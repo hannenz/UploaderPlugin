@@ -9,7 +9,7 @@ class UploadsController extends UploaderAppController {
  * @param $id integer optional
  */
 	function edit($id = null){
-		if (!empty($this->data)){
+		if (!empty($this->request->data)){
 			$mssg = array();
 			if (!empty($_FILES['Poster']['name'])){
 				$newPoster = $this->Upload->uploadPoster($this->request->data['Upload']['id'], 'files/posters');
@@ -20,13 +20,14 @@ class UploadsController extends UploaderAppController {
 				else {
 					$mssg[] = __d('uploader', 'Poster upload failed!');
 				}
-				if ($this->Upload->save($this->data, array('validate' => false, 'callbacks' => false))){
-					$mssg[] = __d('uploader', 'Upload has been saved');
-					$this->Session->setFlash(join('<br>', $mssg));
-					$this->redirect($this->referer());
-				}
-				$this->Session->setFlash(__d('uploader', 'Upload could not been saved'));
 			}
+			if ($this->Upload->save($this->request->data, array('validate' => false, 'callbacks' => false))){
+				$mssg[] = __d('uploader', 'Upload has been saved');
+				$this->Session->setFlash(join('<br>', $mssg));
+				$this->redirect('/items/edit/47'); // DELETEME!
+				$this->redirect($this->referer());
+			}
+			$this->Session->setFlash(__d('uploader', 'Upload could not been saved'));
 		}
 
 		Configure::load('Uploader.mime_types');
