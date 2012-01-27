@@ -1,12 +1,4 @@
 
-/* This should go into the website's main style, not here!!! */
-div.input.file.uploader {
-	width:30%;
-	float:left;
-	clear:none;
-	margin-right:2%;
-}
-/* End */
 
 div.input.file.uploader input {
 	width:100%;
@@ -71,71 +63,6 @@ div.input.file.uploader label {
 	background:transparent !important;
 }
 
-
-.uploader-queue:before {
-	content:'Queue';
-	font-weight:bold;
-	color:#333;
-}
-
-.uploader-queue {
-	width:45%;
-	float:right;
-	list-style-type:none;
-	font-size:11px;
-	font-family:Verdana, sans;
-	border:1px solid #ccc;
-	border-radius:4px;
-	margin:10px 0;
-	padding:10px;
-}
-
-.uploader-queue li {
-	color:#666;
-	overflow:hidden;
-	padding:12px 0;
-}
-
-.uploader-queue-perc {
-	width:40px;
-	float:right;
-	text-align:right;
-}
-
-.uploader-queue-progressbar {
-	background:#fff;
-	height:6px;
-	margin:4px 0;
-	padding:0;
-}
-
-.uploader-progressbar {
-	height:6px;
-	background:#1E90FF;
-	margin:0;
-	padding:0;
-}
-
-.uploader.error {
-	font-weight:bold;
-}
-
-.uploader.error li {
-	margin:0;
-	border:0;
-	font-weight:normal;
-}
-
-.uploader-status-pending {
-	opacity:0.5;
-}
-.uploader-status-uploading {
-/*	opacity:1;*/
-}
-.uploader-status-finished {
-	font-weight:bold;
-}
-
 .uploader-list-actions {
 	list-style-type:none;
 	clear:both;
@@ -172,11 +99,6 @@ div.input.file.uploader label {
 .uploader-list-actions a.uploader-list-down { background-image:url('/uploader/img/down.png'); }
 .uploader-list-actions a.uploader-list-delete { background-image:url('/uploader/img/delete.png'); }
 
-
-/*
-.uploader-list li:first-child a.uploader-list-up { display:none; }
-.uploader-list li:last-child a.uploader-list-down { display:none; }
-*/
 .uploader-list li.first-child a.uploader-list-up { display:none; }
 .uploader-list li.last-child a.uploader-list-down { display:none; }
 
