@@ -103,14 +103,20 @@ class UploaderFormHelper extends AppHelper {
 
 		$out .= $this->Form->input('element', array('value' => $options['element'], 'type' => 'hidden', 'class' => 'uploader-element', 'id' => false));
 		if ($options['list']){
-			$out .= $this->uploadList($uploadAlias, null, $options['element']);
+			//$out .= $this->uploadList($uploadAlias, null, $options['element']);
+			$out .= $this->_View->element(
+				'uploader_list',
+				array(
+					'alias' => $uploadAlias,
+					'data' => $this->request->data,
+					'element' => $options['element'],
+					'replace' => $this->config['max'] == 1
+				),
+				array(
+					'plugin' => 'Uploader'
+				)
+			);
 		}
-		//~ $out .= $this->Html->script(array(
-			//~ '/uploader/js/jquery',
-			//~ '/uploader/js/jquery.form',
-			//~ '/uploader/js/jquery.html5_upload',
-			//~ '/uploader/js/uploader'
-		//~ ), array('inline' => false));
 		$out = $this->Html->div(join(' ', $cssClass), $out, array('id' => join('_', array('Uploader', $model, $uploadAlias, $foreignKey))));
 		return $this->output($out);
 	}
@@ -129,38 +135,38 @@ class UploaderFormHelper extends AppHelper {
  * @return
  *
  */
-	function uploadList($alias, $data = null, $element = null){
-
-		if ($data === null){
-			$data = $this->request->data;
-		}
-		if ($element === null){
-			$element = 'default_element';
-		}
-
-		$list = array();
-		if (isset($data[$alias])){
-			$total = count($data[$alias]);
-			foreach ($data[$alias] as $n => $upload){
-				$nth = array();
-				if ($n == 0){
-					$nth[] = 'first-child';
-				}
-				if ($n == $total - 1){
-					$nth[] = 'last-child';
-				}
-				$item = $this->_View->element($element, array('upload' => $upload, 'nth', $nth), array('plugin' => 'Uploader'));
-				$checkboxLabel = __d('uploader', 'Delete this upload', true);
-				$list[] = $this->Html->tag('li', $item, array('class' => join(' ', $nth), 'id' => join('_', array($upload['model'].'.'.$alias, $upload['id']))));
-			}
-		}
-		$out = '';
-		$out .= $this->Html->css('/uploader/css/uploader.css', null, array('inline' => false));
-		$cssClass = array('uploader-list', $alias);
-		if ($this->config['max'] == 1){
-			$cssClass[] = 'uploader-replace';
-		}
-		$out .= $this->Html->tag('ul', join('', $list), array('class' => join(' ', $cssClass)));
-		return ($this->output($out));
-	}
+	//~ function uploadList($alias, $data = null, $element = null){
+//~
+		//~ if ($data === null){
+			//~ $data = $this->request->data;
+		//~ }
+		//~ if ($element === null){
+			//~ $element = 'default_element';
+		//~ }
+//~
+		//~ $list = array();
+		//~ if (isset($data[$alias])){
+			//~ $total = count($data[$alias]);
+			//~ foreach ($data[$alias] as $n => $upload){
+				//~ $nth = array();
+				//~ if ($n == 0){
+					//~ $nth[] = 'first-child';
+				//~ }
+				//~ if ($n == $total - 1){
+					//~ $nth[] = 'last-child';
+				//~ }
+				//~ $item = $this->_View->element($element, array('upload' => $upload, 'nth', $nth), array('plugin' => 'Uploader'));
+				//~ $checkboxLabel = __d('uploader', 'Delete this upload', true);
+				//~ $list[] = $this->Html->tag('li', $item, array('class' => join(' ', $nth), 'id' => join('_', array($upload['model'].'.'.$alias, $upload['id']))));
+			//~ }
+		//~ }
+		//~ $out = '';
+		//~ $out .= $this->Html->css('/uploader/css/uploader.css', null, array('inline' => false));
+		//~ $cssClass = array('uploader-list', $alias);
+		//~ if ($this->config['max'] == 1){
+			//~ $cssClass[] = 'uploader-replace';
+		//~ }
+		//~ $out .= $this->Html->tag('ul', join('', $list), array('class' => join(' ', $cssClass)));
+		//~ return ($this->output($out));
+	//~ }
 }

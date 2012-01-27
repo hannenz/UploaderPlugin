@@ -179,12 +179,27 @@ class UploadsController extends UploaderAppController {
  */
 	function reorder(){
 		if ($this->request->is('ajax')){
-			$data = array_shift($this->data);
+			$data = array_shift($this->request->data);
 			foreach ($data as $pos => $id){
 				$this->Upload->id = $id;
 				$this->Upload->saveField('pos', $pos + 1);
 			}
-			die();
+
+
+			$oneUpload = $this->Upload->read(null, $data[0]);
+
+			App::uses($oneUpload['Upload']['model'], 'Model');
+			$Model = new $oneUpload['Upload']['model'];
+			$data = $Model->read(null, $oneUpload['Upload']['foreign_key']);
+
+			$this->set(array(
+				'data' => $data,
+				'replace' => false,
+				'alias' => $oneUpload['Upload']['alias'],
+				'element' => 'default_element'
+			));
+			$this->render('/Elements/uploader_list', 'ajax');
+			return;
 		}
 		else {
 			$this->redirect($this->referer());

@@ -1,4 +1,7 @@
-
+.input.file.uploader {
+	padding:0;
+	margin:0;
+}
 
 div.input.file.uploader input {
 	width:100%;
@@ -23,6 +26,8 @@ div.input.file.uploader label {
 	line-height:1.2em;
 	overflow:hidden;
 	width:100%;
+	margin:0;
+	padding:0;
 }
 
 .uploader-list li {
