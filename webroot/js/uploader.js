@@ -30,10 +30,21 @@ function has_html5_upload_support(){
 	return ('multiple' in input && typeof File != "undefined" && typeof (new XMLHttpRequest()).upload != "undefined");
 }
 
+function has_swfupload_support(){
+	return false;
+}
+
+function do_swfupload(){
+
+}
+
 $(document).ready(function(){
 
 	if (!has_html5_upload_support()){
-		//alert ('OMG! You are using a browser without HTML5 Upload support! Go updating!');
+
+		if (has_swfupload_support()){
+			do_swfupload();
+		}
 		return;
 	}
 

@@ -189,5 +189,15 @@ class UploadsController extends UploaderAppController {
 			$this->redirect($this->referer());
 		}
 	}
+
+	function move($id, $dir){
+		if ($this->Upload->move($id, $dir)){
+			$this->Session->setFlash(__d('uploader', 'Upload has been moved'));
+		}
+		else {
+			$this->Session->setFlash(__d('uploader', 'Upload could not been moved'));
+		}
+		$this->redirect($this->referer());
+	}
 }
 ?>

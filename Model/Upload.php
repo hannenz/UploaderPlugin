@@ -616,5 +616,55 @@ class Upload extends AppModel {
 		$upload['icon'] = $this->getIcon($upload);
 		return ($upload);
 	}
+
+/* Move an upload
+ *
+ * @param $id int
+ * 		The id of the upload to be moved
+ * @param $dir int
+ * 		Move direction: -1 = 'up', 1 = 'down
+ * @return
+ * 		boolean: if upload has been moved
+ */
+	function move($id, $dir){
+
+		$dir = ($dir > 0) ? 1 : -1;
+
+		$upload = $this->read(null, $id);
+		$pos = $upload['Upload']['pos'];
+		$conditions = array(
+			'Upload.model' => $upload['Upload']['model'],
+			'Upload.alias' => $upload['Upload']['alias'],
+			'Upload.foreign_key' => $upload['Upload']['foreign_key']
+		);
+
+		$uploads = $this->find('all', array(
+			'conditions' => $conditions,
+			'fields' => array('id', 'pos'),
+			'order' => array('Upload.pos' => 'ASC')
+		));
+
+		$min = $uploads[0]['Upload']['pos'];
+		$max = $uploads[count($uploads) - 1]['Upload']['pos'];
+
+		$newpos = $pos + $dir;
+		if ($newpos < $min || $newpos > $max){
+			return false;
+		}
+
+		$conditions['Upload.pos'] = $newpos;
+
+		$neighbour = $this->find('first', array(
+			'conditions' => $conditions
+		));
+
+		$this->id = $upload['Upload']['id'];
+		$this->saveField('pos', $newpos);
+
+		$this->id = $neighbour['Upload']['id'];
+		$this->saveField('pos', $pos);
+
+		return true;
+	}
 }
 ?>

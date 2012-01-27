@@ -14,6 +14,7 @@
 	border-radius:4px;
 	margin:0.6em 0;
 	padding:0.6em;
+	position:relative;
 }
 
 .uploader-list li div.input {
@@ -102,3 +103,39 @@
 .uploader-status-finished {
 	font-weight:bold;
 }
+
+.uploader-list-actions {
+	list-style-type:none;
+	clear:both;
+	overflow:hidden;
+	width:16px;
+	float:right;
+	margin:0;
+	padding:0;
+	position:absolute;
+	right:0;
+	top:0;
+}
+.uploader-list-actions li {
+	float:none;
+	border:none;
+	width:16px;
+	margin:0;
+	padding:0;
+}
+
+.uploader-list-actions a {
+	display:block;
+	width:16px;
+	height:16px;
+	text-indent:-100px;
+	background-position:0 0;
+	background-repeat:no-repeat;
+	margin:0;
+	padding:0;
+}
+
+.uploader-list-actions a.uploader-list-edit { background-image:url('/uploader/img/edit.png'); }
+.uploader-list-actions a.uploader-list-up { background-image:url('/uploader/img/up.png'); }
+.uploader-list-actions a.uploader-list-down { background-image:url('/uploader/img/down.png'); }
+.uploader-list-actions a.uploader-list-delete { background-image:url('/uploader/img/delete.png'); }
