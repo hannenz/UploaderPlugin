@@ -116,14 +116,31 @@ class UploadsController extends UploaderAppController {
  * name: delete
  * @param $id integer
  */
-	function delete($id){
+	function delete($id, $element = null){
+		$thisUpload = $this->Upload->read(null, $id);
 		if ($this->Upload->delete($id)){
 			$this->Session->setFlash(__d('uploader', 'Upload has been deleted', true));
 		}
 		else {
 			$this->Session->setFlash(__d('uploader', 'Upload could not been deleted', true));
 		}
-		$this->redirect($this->referer());
+		if ($this->request->is('ajax')){
+			App::uses($thisUpload['Upload']['model'], 'Model');
+			$Model = new $thisUpload['Upload']['model'];
+			$data = $Model->read(null, $thisUpload['Upload']['foreign_key']);
+
+			$this->set(array(
+				'data' => $data,
+				'replace' => false,
+				'alias' => $thisUpload['Upload']['alias'],
+				'element' => $element ? $element : 'default_element'
+			));
+			$this->render('/Elements/uploader_list', 'ajax');
+			return;
+		}
+		else {
+			$this->redirect($this->referer());
+		}
 	}
 
 /* Provides a download for the specified upload file
@@ -177,7 +194,7 @@ class UploadsController extends UploaderAppController {
  * name: reorder
  *
  */
-	function reorder(){
+	function reorder($element = null){
 		if ($this->request->is('ajax')){
 			$data = array_shift($this->request->data);
 			foreach ($data as $pos => $id){
@@ -196,7 +213,7 @@ class UploadsController extends UploaderAppController {
 				'data' => $data,
 				'replace' => false,
 				'alias' => $oneUpload['Upload']['alias'],
-				'element' => 'default_element'
+				'element' => $element ? $element : 'default_element'
 			));
 			$this->render('/Elements/uploader_list', 'ajax');
 			return;

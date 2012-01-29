@@ -53,6 +53,7 @@ div.input.file.uploader label {
 
 .uploader-list li img {
 	width:64px;
+	width:15%;
 	float:left;
 	margin:0 1% 0 0;
 	display:block;

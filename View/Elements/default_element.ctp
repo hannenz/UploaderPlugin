@@ -11,14 +11,14 @@
 ?>
 <dl>
 <?php
-	echo $this->Html->tag('dt', __d('uploader', 'Pos', true));
-	echo $this->Html->tag('dd', $upload['pos']);
-	echo $this->Html->tag('dt', __d('uploader', 'Filename', true));
-	echo $this->Html->tag('dd', $upload['name']);
-	echo $this->Html->tag('dt', __d('uploader', 'Filesize', true));
-	echo $this->Html->tag('dd', $this->Number->toReadableSize($upload['size']));
-	echo $this->Html->tag('dt', __d('uploader', 'Filetype', true));
-	echo $this->Html->tag('dd', $upload['type']);
+	echo $this->Html->tag('dt', __d('uploader', 'Pos', true), array('class' => 'uploader-pos'));
+	echo $this->Html->tag('dd', $upload['pos'], array('class' => 'uploader-pos'));
+	echo $this->Html->tag('dt', __d('uploader', 'Filename', true), array('class' => 'uploader-filename'));
+	echo $this->Html->tag('dd', $upload['name'], array('class' => 'uploader-filename'));
+	echo $this->Html->tag('dt', __d('uploader', 'Filesize', true), array('class' => 'uploader-filesize'));
+	echo $this->Html->tag('dd', $this->Number->toReadableSize($upload['size']), array('class' => 'uploader-filesize'));
+	echo $this->Html->tag('dt', __d('uploader', 'Filetype', true), array('class' => 'uploader-filetype'));
+	echo $this->Html->tag('dd', $upload['type'], array('class' => 'uploader-filetype'));
 ?>
 </dl>
 <ul class="uploader-list-actions">
