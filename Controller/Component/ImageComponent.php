@@ -213,6 +213,33 @@ class ImageComponent extends Component {
 	}
 
 
+/* Crop image
+ *
+ * Crops the image to the specified width/ height at an offset x/y.
+ * For backwards compatibility, default parameters are set, so that if
+ * called without parameters it will crop a rectangular centered area
+ * with the original image's smaller edge as the rectangle's edge length
+ *
+ * name: crop
+ * @param mixed $x
+ * 		if numeric, x-offset
+ * 		"center": offset will be centered by original width
+ * @param mixed $y
+ * 		if numeric, y-offset
+ * 		"center": offset will be centered by original height
+ * @param mixed $width
+ * 		if numeric: Resulting width
+ * 		"smallest": smaller edge of original will be used
+ * 		"original": The original image's width
+ * 		you can specify a percentage of the original's width
+ * @param mixed $height
+ * 		if numeric: Resulting height
+ * 		"smallest": smaller edge of original will be used
+ * 		"original": The original image's height
+ * 		you can specify a percentage of the original's height
+ * @return boolean
+ * 		success
+ */
 	function crop($options = array()){
 		$options = array_merge(array(
 			'x' =>'center',
@@ -272,44 +299,6 @@ class ImageComponent extends Component {
 
 
 
-/* Crop image to a rectangle with the smaller dimension of the originals
- * image used as edge length. If width is given, the rectangle will be
- * resized afterwards
- *
- * name: crop
- * @param int $width
- * 		Resulting width
- * @param boolean $center
- * 		Crop from the image's center
- *
- * @return boolean
- * 		success
- */
-	function cropRectangle($options){
-		$options = array_merge(array(
-			'center' => true
-		), $options);
-		extract ($options);
-
-		if ($this->image == null){
-			return (false);
-		}
-
-		$offset = ($center) ? (abs($this->width - $this->height) / 2) : 0;
-		$length = min($this->width, $this->height);
-		$new_image = imagecreatetruecolor($length, $length);
-
-		if ($this->width > $this->height){
-			imagecopy($new_image, $this->image, 0, 0, $offset, 0, $this->width, $this->height);
-		}
-		else {
-			imagecopy($new_image, $this->image, 0, 0, 0, $offset, $this->width, $this->height);
-		}
-
-		$this->set_image($new_image);
-
-		return (true);
-	}
 
 /* Desaturate the image
  *
