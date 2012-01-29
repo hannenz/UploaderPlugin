@@ -51,7 +51,9 @@ class UploaderFormHelper extends AppHelper {
 				'max' => 			__d('uploader', 'Maximum number of uploads exceeded', true),
 			),
 			'element' => 'default_element',
-			'list' => true
+			'list' => true,
+			'showMaxSize' => true,
+			'showAllowedTypes' => true
 		), $options);
 
 		// Read Uploader configuration
@@ -70,6 +72,22 @@ class UploaderFormHelper extends AppHelper {
 		$uploadErrors = $this->_View->Helpers->Form->_models[$model]->uploadErrors;
 
 		$out = '';
+
+		if ($options['showMaxSize']){
+			$out .= $this->Html->div('uploader-max-filesize', sprintf('%s %s',
+				is_string($options['showMaxSize']) ? $options['showMaxSize'] : __d('uploader', 'Max filsize:'),
+				$this->Number->toReadableSize($this->maxUploadSize($uploadAlias))
+			));
+		}
+		if ($options['showAllowedTypes']){
+			$at = Configure::read('Uploader.settings.'.$uploadAlias.'.allow');
+			$out .= $this->Html->div('uploader-allowed-filetypes', sprintf('%s %s',
+				is_string($options['showAllowedTypes']) ? $options['showAllowedTypes'] : __d('uploader', 'Allowed filetypes:'),
+				empty($at) ? __d('uploader', 'all') : join(', ', $at)
+			));
+		}
+
+
 		$cssClass = array('input', 'file', 'uploader');
 		if (!empty($uploadErrors[$uploadAlias])){
 			$cssClass[] = 'error';
@@ -119,6 +137,59 @@ class UploaderFormHelper extends AppHelper {
 		}
 		$out = $this->Html->div(join(' ', $cssClass), $out, array('id' => join('_', array('Uploader', $model, $uploadAlias, $foreignKey))));
 		return $this->output($out);
+	}
+
+/* name: maxUploadSize
+ *
+ * Returns the effective ma xupload filesize, taking in regard
+ * values from php.ini and the max upload sitze specified
+ * in the uploadAlias' configuration
+ *
+ * @param $uploadAlias: The uploadAlias
+ * @return: Max upload filesize for this uploadAlias' files in bytes
+ */
+	function maxUploadSize($uploadAlias){
+
+		$values = array(
+			$this->toBytes(ini_get('upload_max_filesize')),
+			$this->toBytes(ini_get('post_max_size'))
+		);
+
+		$m = Configure::read('Uploader.settings.'.$uploadAlias.'.maxSize');
+		if (!empty($m)){
+			$values[] = $m;
+		}
+
+		return min($values);
+	}
+
+/* name toBytes
+ *
+ * Converts strings (e.g. from php.ini) into number of bytes
+ *
+ * @param $str string: The string to convert
+ * @return int: namber of bytes
+ */
+	private function toBytes($str){
+		$n = 0;
+		$units = array(
+			'k' => 1024,
+			'm' => 1048576,
+			'g' => 1073741824,
+		);
+		$str = trim($str);
+		for ($i = 0; $i < strlen($str) && $str[$i] >= '0' && $str[$i] <= '9' ; $i++){
+			$n = $n * 10 + (int)$str[$i];
+		}
+		while ($i < strlen($str)){
+			$u = strtolower($str[$i]);
+			if (isset($units[$u])){
+				$n *= $units[$u];
+				break;
+			}
+			$i++;
+		}
+		return (int)$n;
 	}
 
 
