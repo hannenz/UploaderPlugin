@@ -158,7 +158,7 @@ class ImageComponent extends Component {
  * 		The resulting width or null
  * @param $height
  * 		The resulting height or null
- * @param boolean  $shrinkOnlyn
+ * @param boolean  $shrinkOnly
  * 		Only resize larger images
  * 		:TODO: ot implemented yet !!!
  *
@@ -186,6 +186,12 @@ class ImageComponent extends Component {
 			$height = $width / $this->ratio;
 		}
 
+		if ($shrinkOnly === true){
+			if ($width > $this->width || $height > $this->height){
+				return true;
+			}
+		}
+
 		$new_image = imagecreatetruecolor($width, $height);
 		imagecopyresampled($new_image, $this->image, 0, 0, 0, 0, $width, $height, $this->width, $this->height);
 
@@ -206,6 +212,66 @@ class ImageComponent extends Component {
 		return ($this->resize($this->width * $options['factor'], $this->height * $options['factor']));
 	}
 
+
+	function crop($options = array()){
+		$options = array_merge(array(
+			'x' =>'center',
+			'y' => 'center',
+			'width' => 'smallest',
+			'height' => 'smallest'
+		), $options);
+
+		if ($this->image == null){
+			return false;
+		}
+
+		extract ($options);
+
+		if ($width == 'smallest'){
+			$width = $this->width < $this->height ? $this->width : $this->height;
+		}
+		if ($width == 'original'){
+			$width = $this->width;
+		}
+		if (substr($width, -1) == '%'){
+			$width = $this->width * (int)$width / 100;
+		}
+
+		if ($height == 'smallest'){
+			$height = $this->width < $this->height ? $this->width : $this->height;
+		}
+		if ($height == 'original'){
+			$height = $this->height;
+		}
+		if (substr($height, -1) == '%'){
+			$height = $this->height * (int)$height / 100;
+		}
+
+		if ($x == 'center'){
+			$x = ($this->width - $width) / 2;
+		}
+		if ($y == 'center'){
+			$y = ($this->height - $height) / 2;
+		}
+
+		if ($width + $x > $this->width){
+			$width = $this->width - $x;
+		}
+		if ($height + $y > $this->height){
+			$height = $this->height - $y;
+		}
+
+		$new_image = imagecreatetruecolor($width, $height);
+		imagecopy($new_image, $this->image, 0, 0, $x, $y, $width, $height);
+
+		$this->set_image($new_image);
+		return true;
+	}
+
+
+
+
+
 /* Crop image to a rectangle with the smaller dimension of the originals
  * image used as edge length. If width is given, the rectangle will be
  * resized afterwards
@@ -219,7 +285,7 @@ class ImageComponent extends Component {
  * @return boolean
  * 		success
  */
-	function crop($options){
+	function cropRectangle($options){
 		$options = array_merge(array(
 			'center' => true
 		), $options);
