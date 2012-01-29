@@ -223,10 +223,12 @@ class ImageComponent extends Component {
  * name: crop
  * @param mixed $x
  * 		if numeric, x-offset
- * 		"center": offset will be centered by original width
+ * 		"center": x-offset will be centered by original width
+ * 		"right" : x-offset calculated from the right edge
  * @param mixed $y
  * 		if numeric, y-offset
- * 		"center": offset will be centered by original height
+ * 		"center": y-offset will be centered by original height
+ * 		"bottom" : y-offset calculated from the bottom edge
  * @param mixed $width
  * 		if numeric: Resulting width
  * 		"smallest": smaller edge of original will be used
@@ -279,6 +281,13 @@ class ImageComponent extends Component {
 		}
 		if ($y == 'center'){
 			$y = ($this->height - $height) / 2;
+		}
+
+		if ($x == 'right'){
+			$x = $this->width - $width;
+		}
+		if ($y == 'bottom'){
+			$y = $this->height - $height;
 		}
 
 		if ($width + $x > $this->width){
