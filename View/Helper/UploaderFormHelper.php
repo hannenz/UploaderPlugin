@@ -52,6 +52,7 @@ class UploaderFormHelper extends AppHelper {
 			),
 			'element' => 'default_element',
 			'list' => true,
+			'showMaxFiles' => true,
 			'showMaxSize' => true,
 			'showAllowedTypes' => true
 		), $options);
@@ -73,18 +74,33 @@ class UploaderFormHelper extends AppHelper {
 
 		$out = '';
 
+		$info = '';
+		if ($options['showMaxFiles']){
+			$maxFiles = Configure::read('Uploader.settings.'.$uploadAlias.'.max');
+			if (!$maxFiles){
+				$maxFiles = __d('uploader', 'unlimited');
+			}
+			$info .= $this->Html->tag('dt', is_string($options['showMaxFiles']) ? $options['showMaxFiles'] : __d('uploader', 'Max files'));
+			$info .= $this->Html->tag('dd', $maxFiles);
+		}
 		if ($options['showMaxSize']){
-			$out .= $this->Html->div('uploader-max-filesize', sprintf('%s %s',
-				is_string($options['showMaxSize']) ? $options['showMaxSize'] : __d('uploader', 'Max filsize:'),
-				$this->Number->toReadableSize($this->maxUploadSize($uploadAlias))
-			));
+			$info .= $this->Html->tag('dt', is_string($options['showMaxSize']) ? $options['showMaxSize'] : __d('uploader', 'Max filsize'));
+			$info .=	$this->Html->tag('dd', $this->Number->toReadableSize($this->maxUploadSize($uploadAlias)));
 		}
 		if ($options['showAllowedTypes']){
 			$at = Configure::read('Uploader.settings.'.$uploadAlias.'.allow');
-			$out .= $this->Html->div('uploader-allowed-filetypes', sprintf('%s %s',
-				is_string($options['showAllowedTypes']) ? $options['showAllowedTypes'] : __d('uploader', 'Allowed filetypes:'),
-				empty($at) ? __d('uploader', 'all') : join(', ', $at)
-			));
+			if (empty($at)){
+				$at = __d('uploader', 'All');
+			}
+			$list = '';
+			foreach ((array)$at as $type){
+				$list .= $this->Html->tag('li', $type);
+			}
+			$info .= $this->Html->tag('dt', is_string($options['showAllowedTypes']) ? $options['showAllowedTypes'] : __d('uploader', 'Allowed filetypes'));
+			$info .= $this->Html->tag('dd', $this->Html->tag('ul', $list));
+		}
+		if (!empty($info)){
+			$out .= $this->Html->tag('dl', $info, array('class' => 'uploader-info'));
 		}
 
 
@@ -128,7 +144,7 @@ class UploaderFormHelper extends AppHelper {
 					'alias' => $uploadAlias,
 					'data' => $this->request->data,
 					'element' => $options['element'],
-					'replace' => $this->config['max'] == 1
+					'replace' => isset($this->config['max']) && $this->config['max'] == 1
 				),
 				array(
 					'plugin' => 'Uploader'

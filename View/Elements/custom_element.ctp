@@ -16,12 +16,12 @@
 		'label' => false,
 		'value' => $upload['id'],
 		'name' => 'uploadsToDelete[]',
-		'hiddenField' => false
+		'hiddenField' => false,
+		'id' => false
 	));
 
 	// Display upload; do what you want here...
-	echo $this->Html->image($upload['icon']);
-	echo $this->Html->tag('span', sprintf('%s (%s)', $upload['name'], $this->Number->toReadableSize($upload['size'])));
+	echo $this->Html->image($upload['icon'], array('title' => sprintf("%s\n%s", $upload['name'], $this->Number->toReadableSize($upload['size']))));
 	//~ echo 'I AM A CUSTOM ELEMENT! >> ' . $upload['name'];
 ?>
 <ul class="uploader-list-actions">

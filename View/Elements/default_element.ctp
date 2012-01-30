@@ -4,7 +4,8 @@
 		'label' => false,
 		'value' => $upload['id'],
 		'name' => 'uploadsToDelete[]',
-		'hiddenField' => false
+		'hiddenField' => false,
+		'id' => false
 	));
 
 	echo $this->Html->image($upload['icon']);

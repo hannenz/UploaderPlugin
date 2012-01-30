@@ -17,7 +17,7 @@
 			}
 			$item = $this->element($element, array('upload' => $upload, 'nth', $nth), array('plugin' => 'Uploader'));
 			$checkboxLabel = __d('uploader', 'Delete this upload', true);
-			echo $this->Html->tag('li', $item, array('class' => join(' ', $nth), 'id' => join('_', array($upload['model'].'.'.$alias, $upload['id']))));
+			echo $this->Html->tag('li', $item, array('class' => $element . ' ' . join(' ', $nth), 'id' => join('_', array($upload['model'].'.'.$alias, $upload['id']))));
 		}
 	?>
 </ul>
